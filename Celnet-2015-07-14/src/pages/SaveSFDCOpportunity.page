@@ -1,0 +1,39 @@
+<apex:page standardController="Opportunity" extensions="SaveSFDCOpportunityController">
+    <apex:form id="changeStatusForm">
+        <apex:pageBlock title="SFDC业务机会录入">
+            <apex:pageMessages />
+            <apex:pageBlockSection title="客户信息" columns="2">
+                <apex:inputField value="{!account.name}" required="true"/>
+                <apex:inputField value="{!account.Account_Source__c}"/>
+                <apex:inputField value="{!account.Address__c}"/>
+                <apex:inputField value="{!account.Phone}"/>
+                <apex:inputField value="{!account.Website}"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="联系人信息" columns="2">
+                <apex:inputField value="{!contact.LastName}" required="true"/>
+                <apex:inputField value="{!contact.FirstName}"/>
+                <apex:inputField value="{!contact.title}"/>
+                <apex:inputField value="{!contact.mobilephone}"/>
+                <apex:inputField value="{!contact.phone}"/>
+                <apex:inputField value="{!contact.email}"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="业务机会信息" columns="2">
+                <apex:inputField value="{!opportunity.name}" required="true"/>
+                <apex:inputField value="{!opportunity.StageName}" required="true"/>
+                <apex:inputField value="{!opportunity.Field1_GetOppTime__c}" required="true"/>
+                <apex:inputField value="{!opportunity.OppSource__c}" required="true"/>
+                <apex:inputField value="{!opportunity.CloseDate}" required="true"/>
+                <apex:inputField value="{!opportunity.Amount}" required="true"/>
+                <apex:inputField value="{!opportunity.SFDC_Amount1__c}" required="true"/>
+                <apex:inputField value="{!opportunity.Territory__c}" required="true"/>                
+                <apex:inputField value="{!opportunity.SalesForce_salesmember__c}" required="true"/>
+                <apex:inputField value="{!opportunity.Type}" required="true" />
+                <apex:inputField value="{!opportunity.Description}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!save}" value="保存"/>
+                <apex:commandButton action="{!cancel}" value="返回"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

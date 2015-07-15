@@ -1,0 +1,16 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" id="page" docType="html-5.0" >
+	<head>
+		<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+		<meta charset="utf-8" />
+		<style>
+			html , body{background-color: #F5F8F8;}
+			*{width:100%;margin: 0;padding: 0;}
+			header{background-color: #45b796;height: 50px;line-height: 50px;}
+			header h1{color:#FFFFFF;font-family:"微软雅黑";font-weight: normal;font-size: 22px;}
+		</style>
+	</head>
+	<header>
+		<h1>&nbsp;&nbsp;&nbsp;成功客户秀</h1>
+	</header>
+	<img src="{!URLFOR($Resource.Campaign,'CustomShow/tu.jpg')}" alt="CustomShow" />
+</apex:page>

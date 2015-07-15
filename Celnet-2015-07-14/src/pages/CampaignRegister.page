@@ -1,0 +1,226 @@
+<apex:page showHeader="false" standardStylesheets="false" id="page" docType="html-5.0" controller="CampaignRegisterController">
+    <head>
+        <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+        <style>
+            html ,body ,div ,form,header,table,img{width:100%;margin:0;padding:0;{!if(formDisplay ,'background:rgb(242, 242, 242)' ,'background:rgb(80, 80, 80)')};}
+            .form{font-family:"微软雅黑";color:#666666;}
+            .form header label{margin:0px 40px;font-size:20px;}
+            .form .member{background:transparent;width:150px;padding:10px;border:1px solid #b3b3b3 !important}
+            .form table tr .label{width:40%;}
+            .form table tr{font-size:20px;height:50px;}
+            .form span{color:red;}
+            .reg{
+            background-color:#FF0000;
+            color:#FFFFFF;
+            width:160px;
+            height:50px;
+            line-height:50px;}
+            .form article{background-color:rgb(83, 83, 83);padding:20px 10px;font-family:"微软雅黑";}
+            .form article section{padding:5px 0px}
+            .form article section label{color:#FFFFFF;font-weight:500;-webkit-margin-after:0px;font-size:18px;}
+            .form article section p{color:#bfbfbf;-webkit-margin-before:0px;font-size:14px;}
+            .form article section span{color:#bfbfbf;-webkit-margin-before:0px;font-size:14px;}
+            .form footer{margin:10px 0px;}
+            .form footer img{position:absolute;right:0px;}
+            .form2 header{width:100%;background:url('http://www.celnet.com.cn/images/bg_4.jpg');}
+            .form2 header img{width:30% !important;background-color:inherit !important;margin-left:20%;}
+            .form2 article{width:94%;margin:20px auto;}
+            .form2 footer{background-color:#999999;height:54px;}
+            .form2 footer p{font-size:10px;font-family:"微软雅黑";color:#FFFFFF;margin-left:20%;line-height:54px;}
+            .form3{width:100%;text-align:center;font-family:"微软雅黑";}
+            .form3 header{margin-top:60px;}
+            .form3 img{width:40% !important;}
+            .form3 article{margin-top:20px;color:RGB(235,255,1) !important;font-size:38px;font-weight:bold;}
+            .form3 footer{color:#FFFFFF;font-size:20px;margin-top:20px;}
+        </style>
+    </head>
+    
+    <body>
+        <apex:form styleClass="form" id="form" onsubmit="return false" rendered="{!formDisplay}">
+            <header>
+                <img src="http://www.celnet.com.cn/mkt/2015/images/banner-mobile.jpg" />
+            </header>
+            <apex:actionFunction action="{!register}" name="register"/>
+            <apex:inputhidden value="{!memberinfo}" id="memberinfo"/>
+                <header>
+                    <label>请填写报名资料：</label>
+                    <img src="http://www.celnet.com.cn/mkt/images/edm-line.jpg" height="9" />
+                </header>
+                
+                <table cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td class="label" valign="middle" align="right">
+                            <label for="lastname">姓</label>
+                            <span>&nbsp;&nbsp;*&nbsp;&nbsp;</span>
+                        </td>
+                        <td><input type="text" name="lastname" id="lastname" class="member" /></td>
+                    </tr>
+                    <tr>
+                        <td class="label" valign="middle" align="right">
+                            <label for="firstname">名</label>
+                            <span>&nbsp;&nbsp;*&nbsp;&nbsp;</span>
+                        </td>
+                        <td><input type="text" name="firstname" id="firstname" class="member" /></td>
+                    </tr>
+                    <tr>
+                        <td class="label" valign="middle" align="right">
+                            <label for="email">电子邮件</label>
+                            <span>&nbsp;&nbsp;*&nbsp;&nbsp;</span>
+                        </td>
+                        <td><input type="text" name="email" id="email" class="member" /></td>
+                    </tr>
+                    <tr>
+                        <td class="label" valign="middle" align="right">
+                            <label for="company">公司</label>
+                            <span>&nbsp;&nbsp;*&nbsp;&nbsp;</span>
+                        </td>
+                        <td><input type="text" name="company" id="company" class="member" /></td>
+                    </tr>
+                    <tr>
+                        <td class="label" valign="middle" align="right">
+                            <label for="phone">手机</label>
+                            <span>&nbsp;&nbsp;*&nbsp;&nbsp;</span>
+                        </td>
+                        <td><input type="text" name="phone" id="phone" class="member" /></td>
+                    </tr>
+                    <tr>
+                        <td class="label" valign="middle" align="right">
+                            <label for="position">职务</label>
+                            <span>&nbsp;&nbsp;*&nbsp;&nbsp;</span>
+                        </td>
+                        <td><input type="text" name="position" id="position" class="member" /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="center"><button class="reg" id="register">立即报名</button></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" valign="middle">
+                            <span>&nbsp;&nbsp;*&nbsp;&nbsp;</span>
+                            <label>标识的项是必需字段</label>
+                        </td>
+                    </tr>
+                </table>
+            <article>
+                <section>
+                    <label>Salesforce:</label>
+                    <p>Salesforce是CRM领域的全球领导者，全球有超过100,000家公司选择了Salesforce，在业界拥有无可比拟的客户成功率。</p>
+                </section>
+                <section>
+                    <label>Celnet:</label>
+                    <p>Celnet雨花石科技是Salesforce中国区合作伙伴，是一家专注信息化软件研发、咨询和实施服务的企业，依托世界知名CRM，以Salesforce.com平台的销售与服务作为核心业务，在CRM软件服务领域开展理念宣传和市场耕耘，并取得显著成效。</p>
+                </section>
+                <section>
+                    <label>电话：</label><span>+86 010-5923 1558</span><br/>
+                    <label>邮件：</label><span>celnet_marketing@celnet.com.cn</span>
+                </section>
+            </article>
+            <footer>
+                <img src="http://www.celnet.com.cn/mkt/images/edm-logo.png" />
+            </footer>
+        </apex:form>
+        <apex:form styleClass="form2" rendered="{!form2Display}">
+            <header>
+                <img src="http://www.celnet.com.cn/images/logo-2.png" height="40" />
+            </header>
+            <article>
+                <img src="http://www.celnet.com.cn/images/OK.jpg" />
+            </article>
+            <footer>
+                <p>Celnet  © 2013 - All Rights Reserved. 沪ICP备13028880号</p>
+            </footer>
+        </apex:form>
+        <apex:form styleClass="form3" rendered="{!form3Display}">
+            <header>
+                <img src="https://c.ap1.content.force.com/servlet/servlet.ImageServer?id=01590000009fDCj&oid=00D900000011gkK&lastMod=1435562014000" />
+            </header>
+            <article>
+                签到成功!
+            </article>
+            <footer>
+                雨花石科技有限公司
+            </footer>
+        </apex:form>
+    </body>
+    <script>
+        var firstname = document.querySelector("#firstname");
+        var lastname = document.querySelector("#lastname");
+        var email = document.querySelector("#email");
+        var company = document.querySelector("#company");
+        var position = document.querySelector("#position");
+        var phone = document.querySelector("#phone");
+        
+        (function(){
+            var reg = document.querySelector("#register");
+            reg.addEventListener("click" , submit);
+        })();
+        
+        function submit()
+        {
+            if(!chkRegFm())
+                return false;
+            else
+            {
+                var member = new Member(lastname.value , firstname.value , email.value , company.value , phone.value , position.value);
+                var memberinfo = JSON.stringify(member);
+                document.querySelector("#page\\:form\\:memberinfo").value = memberinfo;
+                register();
+            }
+        }
+        
+        function isValidEmail(emailad) {
+            var exclude = /[^@\-\.\w\']|^[_@\.\-]|[\._\-]{2}|[@\.]{2}|(@)[^@]*\1/;
+            var check = /@[\w\-]+\./;
+            var checkend = /\.[a-zA-Z]{2,6}$/;
+            return (((emailad.length > 80) || (emailad.search(exclude) != -1) || (emailad.search(check)) == -1) || (emailad.search(checkend) == -1)) ? false : true;
+        }
+        
+        function isValidPhoneNumber(num, requiredDigits) {
+            var digits = 0;
+            if (num == null) return false;
+            for (i = 0; i < num.length; i++) {
+                var c = num.charCodeAt(i);
+                if ((c >= 48) && (c <= 57)) digits++;
+            }
+            return (digits >= requiredDigits);
+        }
+        
+        function chkRegFm() {
+            
+            if (lastname.value.replace(/(^\s*)|(\s*$)/g, "") == "") {
+                alert("请输入姓氏!");
+                return false;
+            }            
+            if (firstname.value.replace(/(^\s*)|(\s*$)/g, "") == "") {
+                alert("请输入名字!");
+                return false;
+            }
+            if (!isValidEmail(email.value.replace(/(^\s*)|(\s*$)/g, ""))) {
+                alert("请输入合法电子邮件!");
+                return false;
+            }
+            if (company.value.replace(/(^\s*)|(\s*$)/g, "") == "") {
+                alert("请输入公司!");
+                return false;
+            }
+            if (!isValidPhoneNumber(phone.value.replace(/(^\s*)|(\s*$)/g, ""), 10)) {
+                alert("请输入11位手机号码!");
+                return false;
+            }
+            if (position.value.replace(/(^\s*)|(\s*$)/g, "") == "") {
+                alert("请输入职务!");
+                return false;
+            }
+            return true;
+        }
+                
+        function Member(lastname ,firstname , email , company , phone , position)
+        {
+            this.lastname = lastname;
+            this.firstname = firstname;
+            this.email = email;
+            this.company = company;
+            this.phone = phone;
+            this.position = position;
+        }
+    </script>
+</apex:page>

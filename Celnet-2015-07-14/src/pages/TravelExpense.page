@@ -1,0 +1,241 @@
+<apex:page standardController="costreport__c" showHeader="false" extensions="TravelExpense"  renderAs="pdf" >
+<script>
+        function PrintFun(){
+            var PrintDiv =document.getElementById('printdiv');
+            PrintDiv.style.display='none';
+            window.print();
+        }
+    </script>
+
+<div align="center" style="font-family: Arial Unicode MS;">
+     <center>
+    <table width="687" border="0" align ="center">
+                <tr>
+                    <td rowspan="2" align="left" width="127">
+                        <apex:image url="{!$Resource.cideaPic}" width="127" height="45" />
+                    </td>
+                
+                    <td align="center" >
+                        <table align ="center">
+                        <tr><td align="center" style="font-size: 18px" height="24"><b>北京雨花石科技有限公司 </b></td></tr>
+                        <tr><td align="center" style="font-size: 18px" height="24"><b>差旅费月结算表</b></td></tr>
+                        </table>                
+                    </td>
+                    <td width="150">&nbsp;</td>
+                </tr>
+    </table>
+  <br/>
+<table  width="687" border="1" cellpadding="0" cellspacing="0" style="font-size: 14px;" >
+  <tr bgcolor="#C0C0C0"  >
+    <td>分公司</td>
+    <td>报销申请人</td>
+    <td>员工编号</td>
+    <td>部门</td>
+    <td>申报月份</td>
+  </tr>
+  <tr>
+    <td height="20"> &nbsp;<apex:outputText value="{!user.Area__c}" /></td>
+    <td>&nbsp;<apex:outputText value="{!user.Name}" /></td>
+    <td>&nbsp;<apex:outputText value="{!user.EmployeeNumber}" /></td>
+    <td>&nbsp;<apex:outputText value="{!user.Department}" /></td>
+   
+    <td>&nbsp;<apex:outputText value="{!baseInfo.reimbursementMonth__c  }"/></td>
+  </tr>
+</table>
+<br/>
+<table style="{!accommodationListTableStyle}" width="687" border="1" cellpadding="0" cellspacing="0"  >
+  <tr bgcolor="#C0C0C0"  >
+    <td height="20" colspan="7">住宿费</td>
+  </tr>
+  <tr bgcolor="#C0C0C0"  >
+    <td width="184" height="26">起讫日期</td>
+    <td width="159">酒店名称</td>
+    <td width="139">每日房价</td>
+    <td width="102">报销金额</td>
+    <td width="103">项目名称</td>
+  </tr>
+  <apex:repeat var="detail" value="{!accommodationList}">
+  <tr  >
+    <td height="20">&nbsp;<apex:outputField value="{!detail.StartDate__c}"/>~<apex:outputField value="{!detail.EndTime__c}"/></td>
+    <td>&nbsp;<apex:outputText value="{!detail.hotleName__c}"/></td>
+    <td>&nbsp;<apex:outputText value="{!detail.EveryDaymoney__c}"/></td>
+    <td>&nbsp;
+    <apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!detail.reimbursementAmount__c}" />
+    </apex:outputText>
+    </td>
+    <td>&nbsp;<apex:outputText value="{!detail.projectName__r.Name}"/></td>
+  </tr>
+    </apex:repeat>
+  <tr  >
+    <td height="20" colspan="3"><div align="right">小计:</div></td>
+    <td>&nbsp;<apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!accommodationpay}" />
+    </apex:outputText></td>
+    <td>&nbsp;</td>
+  </tr>
+
+</table>
+<br/>
+<table style="{!citycarFareListTableStyle}" width="687" border="1" cellpadding="0" cellspacing="0"  >
+  <tr bgcolor="#C0C0C0"  >
+    <td height="20" colspan="6">市内交通费</td>
+  </tr>
+  <tr bgcolor="#C0C0C0"  >
+    <td width="91" height="20">日期</td>
+    <td width="111">起始地</td>
+    <td width="111">目的地</td>
+    <td width="169">原因</td>
+    <td width="102">报销金额</td>
+    <td width="103">项目名称</td>
+  </tr>
+  <apex:repeat var="detail" value="{!cityCarFareList}">
+  <tr  >
+    <td height="20">&nbsp;<apex:outputField value="{!detail.invoiceDate__c}"/></td>
+    <td>&nbsp;<apex:outputText value="{!detail.StartAddress__c}"/></td>
+    <td>&nbsp;<apex:outputText value="{!detail.EndAddress__c}"/></td>
+    <td>&nbsp;<apex:outputText value="{!detail.Because__c}"/></td>
+    <td>&nbsp;
+    <apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!detail.reimbursementAmount__c}" />
+    </apex:outputText></td>
+    <td>&nbsp;<apex:outputText value="{!detail.projectName__r.Name}"/></td>
+  </tr>
+  </apex:repeat>
+ <tr  >
+    <td height="20" colspan="4"><div align="right">小计:</div></td>
+    <td>&nbsp;<apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!citycarfarepay}" />
+    </apex:outputText></td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<br/>
+
+<table style="{!carFareListTableStyle}" width="687" border="1" cellpadding="0" cellspacing="0"  >
+  <tr bgcolor="#C0C0C0"  >
+    <td height="20" colspan="5">交通费</td>
+  </tr>
+  <tr bgcolor="#C0C0C0"  >
+    <td width="150" height="22">日期</td>
+    <td width="166">起点</td>
+    <td width="166">终点</td>
+    <td width="102">报销金额</td>
+    <td width="103">项目名称</td>
+  </tr>
+    <apex:repeat var="detail" value="{!carFareList}">
+  <tr  >
+    <td height="20">&nbsp;<apex:outputField value="{!detail.invoiceDate__c}"/></td>
+    <td><apex:outputText escape="true" value="{!detail.trafficStartAddress_del__c}"/></td>
+    <td><apex:outputText escape="true" value="{!detail.trafficEndAddress_del__c}"/></td>
+    <td>&nbsp;
+    <apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!detail.reimbursementAmount__c}" />
+    </apex:outputText></td>
+    <td>&nbsp;<apex:outputText value="{!detail.projectName__r.Name}"/></td>
+  </tr>
+  </apex:repeat>
+   <tr  >
+    <td height="20" colspan="3" align="right">小计:</td>
+    <td>&nbsp;
+    <apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!carfarepay}" />
+    </apex:outputText>
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<br/>
+<table style="{!otherFeeListTableStyle}" width="687" border="1" cellpadding="0" cellspacing="0"  >
+  <tr bgcolor="#C0C0C0" >
+    <td height="20" colspan="4">其他费用</td>
+  </tr>
+  <tr bgcolor="#C0C0C0" >
+    <td width="149" height="22">日期</td>
+    <td width="333">用途</td>
+    <td width="102">报销金额</td>
+    <td width="103">项目名称</td>
+  </tr>
+    <apex:repeat var="detail" value="{!otherFeeList}">
+  <tr  >
+    <td height="20">&nbsp;<apex:outputField value="{!detail.invoiceDate__c}"/></td>
+    <td>&nbsp;<apex:outputText value="{!detail.OtheUser__c}"/></td>
+<td>&nbsp;
+<apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!detail.reimbursementAmount__c}" />
+    </apex:outputText>
+</td>
+    <td>&nbsp;<apex:outputText value="{!detail.projectName__r.Name}"/></td>
+  </tr> 
+  </apex:repeat>
+   <tr  >
+    <td height="20" colspan="2"><div align="right">小计:</div></td>
+    <td>&nbsp;
+    <apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!otherfeepay}" />
+    </apex:outputText>
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<br/>
+<table width="687" border="1" cellpadding="0" cellspacing="0" style="font-size: 14px;">
+  <tr>
+    <td width="98" height="20">报销总计：</td>
+    <td align="left" height="20">&nbsp;
+    <apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!allpay}" />
+    </apex:outputText>
+    </td>
+    <td width="99">预支金额：</td>
+    <td width="85">&nbsp;<apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!expectedpay}" />
+    </apex:outputText></td>
+    <td width="99">实报金额：</td>
+    <td width="104">&nbsp;<apex:outputText value="{0, number, ###,##0.00}">
+       <apex:param value="{!travelpay}" />
+    </apex:outputText></td>
+    </tr>
+</table>
+<br/>
+<table width="693" height="200" border="0" style="font-size: 16px;">
+  <tr>
+    <td height="81" colspan="2">    
+    <div align="center" style="border-style:solid">
+    <p>平台经理审核/日期</p>
+            <p>&nbsp;</p>      
+    </div>
+    </td>
+    <td width="78">&nbsp;</td>
+    <td width="297">    <div align="center" style="border-style:solid">
+    <p>总经理审核/日期</p>
+            <p>&nbsp;</p>      
+    </div></td>
+  </tr>
+  <tr>
+    <td colspan="2" height="82" >   <div align="center" style="border-style:solid">
+    <p>经手人审核/日期</p>
+            <p>&nbsp;</p>      
+    </div></td>
+    <td>&nbsp;</td>
+    <td>    <div align="center" style="border-style:solid">
+    <p>财务部审核/日期</p>
+            <p>&nbsp;</p>      
+    </div></td>
+  </tr>
+  <tr>
+    <td width="199" height="29" align="left">时间： <apex:outputText value="{0,date,yyyy.MM.dd }">
+       <apex:param value="{!NOW()}" />
+   </apex:outputText></td>
+    <td width="101"></td>
+    <td>&nbsp;编制者：</td>
+    <td  align="left">&nbsp;<apex:outputText value="{!user.name}"/></td>
+  </tr>
+</table>
+<div id="printdiv">
+<input id="printbutton" type="button" value="打印" onclick="PrintFun();" />
+ </div>
+</center>
+</div>
+</apex:page>

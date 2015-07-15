@@ -1,0 +1,148 @@
+<apex:page id="p" docType="html-5.0" showHeader="false" applyBodyTag="false" standardStylesheets="false" controller="CW_ProjectManDayConfirmController">
+    <head>
+        <!-- Baidu统计代码开始 -->
+        <script>
+            var _hmt = _hmt || [];
+            (function() {
+              var hm = document.createElement("script");
+              hm.src = "//hm.baidu.com/hm.js?8556eb3708f6a51cff7aeb374f5414c2";
+              var s = document.getElementsByTagName("script")[0]; 
+              s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+        <!-- Baidu统计代码结束 -->
+        <meta name="generator" content="HTML Tidy for Linux/x86 (vers 25 March 2009), see www.w3.org" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        
+        <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    
+        <script>
+            jQuery( document ).on( "mobileinit", function() {
+                jQuery.mobile.autoInitializePage = false;
+            });
+        </script>
+        
+        <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/jquery.mobile.icons.min.css')}" />
+        <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/celnet.min.css')}" />
+        <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+        <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+        <!--
+        <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+        <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+        <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+        -->
+        <style type="text/css">
+            tr{border: 0px solid #d0d0d0;text-align: center;border-radius:10px;}
+            td{border: 1px solid #d0d0d0;}
+            th{background-color: #E0E0E0;border: 1px solid #d0d0d0;}
+        </style>
+        <script type="text/javascript">
+            
+            var jqm_theme = 'b';
+            
+            jQuery(document).ready(function($) {
+                $.mobile.initializePage();
+                $('div[data-role="page"]').page({theme:jqm_theme});
+                
+                $( "#tabs" ).tabs("option", "active", 2);
+                $( "#tabs" ).tabs("option", "show", {duration: 300});
+                $("#thisweek-tab").addClass('ui-btn-active');
+                $(".ui-btn").css("font-size" , "1.3em");
+                $(".week-tab").css("font-size" , "1em");
+            }); 
+        </script>
+        <title>
+            我负责项目的人天--{!UserName}
+        </title>
+    </head>
+    <body>
+        <div data-role="tabs" id="tabs">
+          <div data-role="navbar">
+            <ul>
+              <li ><a id="lastlastweek-tab" href="#lastlastweek" data-ajax="false" class="week-tab">上上周</a></li>
+              <li ><a id="lastweek-tab" href="#lastweek" data-ajax="false" class="week-tab">上周</a></li>
+              <li ><a id="thisweek-tab" href="#thisweek" data-ajax="false" class="week-tab">本周</a></li>
+            </ul>
+          </div>
+            <div id="lastlastweek">
+                <div style="width: 100%;text-align: center;font-size: 16px;">{!last_lastStandardWeek}</div>
+                <apex:repeat value="{!last_lastWeekManagerProject}" var="pro">
+                    <div data-role="collapsible">
+                    <h5 style="display: block;">
+                        <div style="float: left;">{!pro.projectName}</div>
+                        <div style="float: right;">{!pro.currentManDay}</div>
+                        <div style="clear: both;"></div>
+                    </h5>
+                    <ul data-role="listview"  data-autodividers="true">
+                        <table style="border-collapse: collapse;width: 100%;border-radius:10px;">
+                            <apex:repeat value="{!pro.memberList}" var="me">
+                                <tr height="40">
+                                    <td>{!me.projectMember}</td>
+                                    <td>{!me.manDay}</td>
+                                </tr>
+                            </apex:repeat>
+                            <tr style="display: {!pro.nullDisplay}" height="40">
+                                <td colspan="2">无</td>
+                            </tr>
+                        </table>
+                    </ul>
+                    </div>
+                </apex:repeat>
+            </div>
+        
+            <div id="lastweek">
+                <div style="width: 100%;text-align: center;font-size: 16px;">{!lastStandardWeek}</div>
+                <apex:repeat value="{!lastWeekManagerProject}" var="pro">
+                    <div data-role="collapsible">
+                    <h5 style="display: block;">
+                        <div style="float: left;">{!pro.projectName}</div>
+                        <div style="float: right;">{!pro.currentManDay}</div>
+                        <div style="clear: both;"></div>
+                    </h5>
+                    <ul data-role="listview"  data-autodividers="true">
+                        <table style="border-collapse: collapse;width: 100%;border-radius:10px;">
+                            <apex:repeat value="{!pro.memberList}" var="me">
+                                <tr height="40">
+                                    <td>{!me.projectMember}</td>
+                                    <td>{!me.manDay}</td>
+                                </tr>
+                            </apex:repeat>
+                            <tr style="display: {!pro.nullDisplay}" height="40">
+                                <td colspan="2">无</td>
+                            </tr>
+                        </table>
+                    </ul>
+                    </div>
+                </apex:repeat>              
+            </div>
+        
+            <div id="thisweek">
+                <div style="width: 100%;text-align: center;font-size: 16px;">{!standardWeek}</div>
+                <apex:repeat value="{!thisWeekManagerProject}" var="pro">
+                    <div data-role="collapsible">
+                    <h5 style="display: block;">
+                        <div style="float: left;">{!pro.projectName}</div>
+                        <div style="float: right;">{!pro.currentManDay}</div>
+                        <div style="clear: both;"></div>
+                    </h5>
+                    <ul data-role="listview"  data-autodividers="true">
+                        <table style="border-collapse: collapse;width: 100%;border-radius:10px;">
+                            <apex:repeat value="{!pro.memberList}" var="me">
+                                <tr height="40">
+                                    <td>{!me.projectMember}</td>
+                                    <td>{!me.manDay}</td>
+                                </tr>
+                            </apex:repeat>
+                            <tr style="display: {!pro.nullDisplay}" height="40">
+                                <td colspan="2">无</td>
+                            </tr>
+                        </table>
+                    </ul>
+                    </div>
+                </apex:repeat>
+            </div>
+        </div>
+    </body>
+</apex:page>

@@ -1,0 +1,156 @@
+<apex:page standardController="Collection__c" showHeader="false" extensions="Collection_PaymentDetails_Report" id="col">
+<style>
+.table{background:white;border:solid Black; border-width:1px 0px 0px 1px;margin: 0;}
+.td{font-family: Arial,Helvetica,sans-serif;;border:solid Black; border-width:0px 1px 1px 0px; padding-top:1;padding-bottom:1;font-align:center;}
+
+</style>
+<script>
+function goToOrder(oid)
+{
+  // window.open("/"+oid);
+    window.open("/"+oid);
+}
+function R()
+{
+  var status="{!Status}";
+  if(status!=null&&status!='')
+  {
+    alert(status);
+  }
+}
+</script>
+<body onload="R()">
+<apex:form id="f">
+<div>
+&nbsp;&nbsp;
+起始日期:    <apex:inputText style="width:80px;" id="startdate" value="{!StartWeek}" onfocus="DatePicker.pickDate(true, 'col:f:startdate', false);" />
+<!--<apex:inputField value="{!col_StartDate.Expectedcollectiondate__c}"/>-->
+结束日期：    <apex:inputText style="width:80px;" id="enddate" value="{!EndWeek}" onfocus="DatePicker.pickDate(true, 'col:f:enddate', false);" />
+<!--<apex:inputField value="{!pay_EndDate.ContractPayDate__c}"/>-->
+初始余额:<apex:inputText value="{!StartRemain}"/>
+发票状态:
+<apex:selectList id="chooseColor" value="{!Invoicestatus}" size="1">
+ <apex:selectOption itemValue="全部" itemLabel="全部"/>
+ <apex:selectOption itemValue="已开" itemLabel="已开"/>
+</apex:selectList> 
+<apex:commandButton value="查询" style="width:50px;height:25px;"  action="{!query}"/>
+<apex:commandButton value="返回" style="width:50px;height:25px;"  action="{!returnHome}"/>
+</div>
+&nbsp;&nbsp;
+<table class="table">
+<tr>
+<td class="td" width="50px" align="center" style="font-weight:bold;background:#1797C0">周</td> 
+<td class="td" width="80px" align="center" style="font-weight:bold;background:#1797C0">类型</td>
+<td class="td" width="180px" align="center" style="font-weight:bold;background:#1797C0">名称</td>
+<td class="td" width="80px" align="center" style="font-weight:bold;background:#1797C0">预计收款时间</td>
+<td class="td" width="80px" align="center" style="font-weight:bold;background:#1797C0">预计开票时间</td>
+<td class="td" width="80px" align="center" style="font-weight:bold;background:#1797C0">发票状态</td>
+<td class="td" width="80px" align="center" style="font-weight:bold;background:#1797C0">收款状态</td>
+<td class="td" width="100px" align="center" style="font-weight:bold;background:#1797C0">金额</td>
+</tr>
+
+<apex:repeat value="{!list_Collection_PaymentDetails}" var="cp">
+
+<tr>
+<td class="td" rowspan="{!cp.ColsPanWeek}" align="center">{!cp.WeekName}</td>
+<td class="td" rowspan="{!cp.Colspan_Col}"  align="center">收款</td>
+<td class="td" align="left">
+<apex:repeat value="{!cp.Collections}" var="col" rows="1">
+<apex:commandLink value="{!col.Name}" reRender="nf:f:Block1" onclick="goToOrder('{!col.id}')" />
+</apex:repeat>
+</td>
+<td class="td" align="left">
+<apex:repeat value="{!cp.Collections}" var="col" rows="1">
+<apex:outputField value="{!col.Expectedcollectiondate__c}"/>
+</apex:repeat>
+</td>
+<td class="td" align="left">
+<apex:repeat value="{!cp.Collections}" var="col" rows="1">
+<apex:outputField value="{!col.Expectedinvoicedate__c}"/>
+</apex:repeat>
+</td>
+
+<td class="td" align="left">
+<apex:repeat value="{!cp.Collections}" var="col" rows="1">
+{!col.invoicestatus__c}
+</apex:repeat>
+</td>
+<td class="td" align="left">
+<apex:repeat value="{!cp.Collections}" var="col" rows="1">
+{!col.collectionstatus__c}
+</apex:repeat>
+</td>
+<td class="td" align="right">
+<apex:repeat value="{!cp.Collections}" var="col" rows="1">
+{!col.Amount__c}
+</apex:repeat>
+</td>
+
+
+
+</tr>
+
+<apex:repeat value="{!cp.Collections}" var="col" first="1">
+<tr>
+<td class="td" align="left"><apex:commandLink value="{!col.Name}" reRender="nf:f:Block1" onclick="goToOrder('{!col.id}')" /></td>
+<td class="td" align="left"><apex:outputField value="{!col.Expectedcollectiondate__c}"/></td>
+<td class="td" align="left"><apex:outputField value="{!col.Expectedinvoicedate__c}"/></td>
+<td class="td" align="left">{!col.invoicestatus__c}</td>
+<td class="td" align="left">{!col.collectionstatus__c}</td>
+<td class="td" align="right">{!col.Amount__c}</td>
+
+
+</tr>
+</apex:repeat>
+
+<tr>
+<td class="td" colspan="6"  align="center">汇总</td>
+<td class="td" align="right">{!cp.CollSumAmount}</td>
+</tr>
+
+<tr>
+<td class="td" rowspan="{!cp.ColsPan_Pay}"  align="center">支出</td>
+<td class="td" align="left">
+<apex:repeat value="{!cp.PayDetails}" var="col" rows="1">
+<apex:commandLink value="{!col.Name}" reRender="nf:f:Block1" onclick="goToOrder('{!col.id}')" />
+</apex:repeat>
+</td>
+<td class="td" ></td>
+<td class="td" ></td>
+<td class="td" ></td>
+<td class="td" ></td>
+<td class="td" align="right">
+<apex:repeat value="{!cp.PayDetails}" var="col" rows="1">
+{!col.PaymentAmount__c}
+</apex:repeat>
+</td>
+
+</tr>
+
+<apex:repeat value="{!cp.PayDetails}" var="col" first="1">
+<tr>
+<td class="td" align="left"><apex:commandLink value="{!col.Name}" reRender="nf:f:Block1" onclick="goToOrder('{!col.id}')" /></td>
+<td class="td" ></td>
+<td class="td" ></td>
+<td class="td" ></td>
+<td class="td" ></td>
+<td class="td" align="right">{!col.PaymentAmount__c}</td>
+</tr>
+</apex:repeat>
+
+<tr>
+<td class="td" colspan="6"  align="center">汇总</td>
+<td class="td" align="right">{!cp.PaySumAmount}</td>
+</tr>
+
+<tr>
+<td class="td" colspan="6" align="center">余额</td>
+<td class="td" align="right">{!cp.Rema}</td>
+</tr>
+
+</apex:repeat>
+
+</table>
+</apex:form>
+</body>
+</apex:page>

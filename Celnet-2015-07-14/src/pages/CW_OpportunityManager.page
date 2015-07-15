@@ -1,0 +1,494 @@
+<apex:page docType="html-5.0" controller="CW_OpportunityManagerController" standardStylesheets="false" applyHtmlTag="false" showHeader="false" sidebar="false" >
+<html>
+<head>
+    <title>业务机会 - {!$User.FirstName} {!$User.LastName}</title>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta http-equiv='cache-control' content='no-cache' />
+    <meta http-equiv='expires' content='0' />
+    <meta http-equiv='pragma' content='no-cache' />
+    <meta content="telephone=no" name="format-detection" />
+    
+    <!-- Baidu统计代码开始 -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "//hm.baidu.com/hm.js?8556eb3708f6a51cff7aeb374f5414c2";
+          var s = document.getElementsByTagName("script")[0]; 
+          s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <!-- Baidu统计代码结束 -->
+    
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    
+    <script>
+        $j = jQuery.noConflict();
+        
+        $j( document ).on( "mobileinit", function() {
+            $j.mobile.autoInitializePage = false;
+        });
+    </script>
+    
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/jquery.mobile.icons.min.css')}" />
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/celnet.min.css')}" />
+    <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+    <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    
+    <script>
+        var jqm_theme = 'b'; // b celnet
+        
+        var opps = {};
+        opps.open = [];
+        opps.closedwon = [];
+        opps.closedlost = [];
+        
+        var opp_stages;
+        
+        window.addEventListener("hashchange", function(e){
+            OpportunityManager.handleHashChange(e);
+        }, false);
+        
+        document.addEventListener('DOMContentLoaded', function(){
+            
+            var page_structure = document.querySelector('#page-structure-template').text;
+            document.querySelector('body').innerHTML = page_structure;
+            
+            $j.mobile.initializePage();
+            $j('#pageone').page({theme:jqm_theme});
+            
+            OpportunityManager.pageInitiateAction();
+        }, false);
+        
+        var OpportunityManager = (function(){
+            var invoke = function(_action_type, _opp_status, _opp_index){
+                switch (_action_type) {
+                    case 'edit-opp':
+                        _hmt.push(['_trackEvent', '业务机会', '编辑业务机会']);//百度统计事件跟踪代码
+                        ActionManager.edit_opp(_opp_status, _opp_index);
+                        break;
+                    case 'save-opp':
+                        _hmt.push(['_trackEvent', '业务机会', '保存业务机会']);//百度统计事件跟踪代码
+                        ActionManager.save_opp(_opp_status, _opp_index);
+                        break;
+                    case 'cancel-edit':
+                        _hmt.push(['_trackEvent', '业务机会', '返回业务机会列表']);//百度统计事件跟踪代码
+                        ActionManager.cancel_edit();
+                        break;
+                    default:
+                        console.log(_action_type);
+                    
+                }
+            }
+            
+            var ActionManager = {
+                //
+                handleHashChange: function(changeEvent){
+                    var hashIndex = changeEvent.newURL.lastIndexOf('#');
+                    
+                    if(hashIndex < 0){
+                        return;
+                    }
+                    console.log(hashIndex);
+                    var _current_hash = changeEvent.newURL.substring(hashIndex + 1);
+                    ActionManager.distributeHashAction(_current_hash);
+                },
+                
+                distributeHashAction: function(_hash){
+                    console.log(_hash.indexOf('opplist'));
+                    // 微信内嵌浏览器(Nexus 4无法识别 String.prototype.startsWith()(ES6))
+                    try{
+                        switch(true){
+                            case _hash.indexOf('opplist') >= 0:
+                                console.log('opplist');
+                                ViewManager.displayOppList();
+                                break;
+                            case _hash.indexOf('oppitem') >= 0:
+                                console.log('oppitem');
+                                console.log(_hash);
+                                var hash_array = _hash.split('separator');
+                                console.log(hash_array);
+                                ViewManager.displayOppEditor(hash_array[1], hash_array[2]);
+                                break;
+                            default:
+                                console.log(_hash);
+                                ViewManager.displayOppList();
+                        }
+                        
+                    } catch(er){
+                        alert(er.stack);
+                    }
+                },
+                
+                // 页面加载，获取当前用户的业务机会
+                pageInitiateAction: function(){
+                    ViewManager.showAjaxLoading('加载中');
+                    CW_OpportunityManagerController.initializeOpps(function(result, event){
+                        console.log(event);
+                        ViewManager.hideAjaxLoading();
+                        if(event.status){
+                            try{
+                                if(result.status == 'success'){
+                                    opp_stages = result.opp_stages;
+                                    ActionManager.categorizeOpps(result.ow_list);
+                                    
+                                    if(window.location.hash == ""){
+                                        window.location.hash = 'opplist';
+                                    } else {
+                                        ActionManager.distributeHashAction('opplist');
+                                    }
+                                    
+                                    //ViewManager.displayOppList();
+                                } else {
+                                    
+                                }
+                            } catch (err){
+                                alert(err);
+                            }
+                        } else {
+                            
+                        }
+                    });
+                },
+                
+                categorizeOpps: function(_opps){
+                    for(var i = 0; i < _opps.length; i++){
+                    
+                        _opps[i].opp.js_close_date = _opps[i].js_close_date;
+                        
+                        switch (_opps[i].opp.StageName) {
+                            case '已结束并赢得客户':
+                                opps.closedwon.push(_opps[i].opp);
+                                break;
+                            case '已结束但失去客户':
+                                opps.closedlost.push(_opps[i].opp);
+                                break;
+                            case '暂停':
+                                opps.closedlost.push(_opps[i].opp);
+                                break;
+                            default:
+                                opps.open.push(_opps[i].opp);
+                        }
+                    }
+                },
+                
+                // 编辑业务机会
+                edit_opp: function(_opp_status, _opp_index){
+                    window.location.hash = 'oppitemseparator' + _opp_status + 'separator' + _opp_index;
+                    //ViewManager.displayOppEditor(_opp_status, _opp_index)
+                },
+                
+                save_opp: function(_opp_status, _opp_index){
+                    ViewManager.showAjaxLoading('保存中');
+                    var _save_opp_wrapper = {"apexType":"c.CW_OpportunityManagerController.OpportunityWrapper"};
+                    _save_opp_wrapper.js_close_date = opps[_opp_status][_opp_index].js_close_date;
+                    opps[_opp_status][_opp_index].js_close_date = undefined;
+                    _save_opp_wrapper.opp = opps[_opp_status][_opp_index];
+                    
+                    _save_opp_wrapper.opp.Name = '';
+                    _save_opp_wrapper.opp.StageName = '';
+                    _save_opp_wrapper.opp.SFDC_Amount1__c = 0;
+                    _save_opp_wrapper.opp.Amount = 0;
+                    
+                    if(document.querySelector('#opp-name') != undefined){
+                        _save_opp_wrapper.opp.Name = document.querySelector('#opp-name').value;
+                    }
+                    
+                    if(document.querySelector('#opp-stage-name') != undefined){
+                        _save_opp_wrapper.opp.StageName = document.querySelector('#opp-stage-name').value;
+                    }
+                    
+                    if(document.querySelector('#opp-sfdc-amount') != undefined){
+                        _save_opp_wrapper.opp.SFDC_Amount1__c = document.querySelector('#opp-sfdc-amount').value;
+                    }
+                    
+                    if(document.querySelector('#opp-amount') != undefined){
+                        _save_opp_wrapper.opp.Amount = document.querySelector('#opp-amount').value;
+                    }
+                    
+                    if(document.querySelector('#opp-end-date') != undefined){
+                        _save_opp_wrapper.js_close_date = document.querySelector('#opp-end-date').value;
+                    }
+                    
+                    console.log(_save_opp_wrapper);
+                
+                    // DML
+                    CW_OpportunityManagerController.saveOpp(_save_opp_wrapper, function(result, event){
+                        console.log(event);
+                        ViewManager.hideAjaxLoading();
+                        if(event.status){
+                            if(result.status == 'success'){
+                                console.log(result);
+                                console.log('test');
+                                opps[_opp_status][_opp_index].Name = result.ow_list[0].opp.Name;
+                                opps[_opp_status][_opp_index].StageName = result.ow_list[0].opp.StageName;
+                                opps[_opp_status][_opp_index].SFDC_Amount1__c = result.ow_list[0].opp.SFDC_Amount1__c;
+                                opps[_opp_status][_opp_index].Amount = result.ow_list[0].opp.Amount;
+                                opps[_opp_status][_opp_index].js_close_date = result.ow_list[0].js_close_date;
+                                
+                                window.location.hash = 'opplist';
+                                //ViewManager.displayOppList();
+                            } else {
+                                
+                            }
+                        } else {
+                            
+                        }
+                        
+                    });
+                },
+                
+                cancel_edit: function(_opp_status, _opp_index){
+                    window.location.hash = 'opplist';
+                    //ViewManager.displayOppList();
+                }
+            };
+            
+            var ViewManager = {
+                displayOppList: function(){
+                    ViewManager.showHeader('test','javascript:OpportunityManager.invokeAction("cancel-edit");');
+                    //var _list = document.querySelector('#opportunity-list-template').text;
+                    var _list_ele = DOMManager.createOppList();
+                    
+                    //document.querySelector('#pageone div[id="page-header-container"]').innerHTML = '';
+                    document.querySelector('#pageone div[id="opportunity-manager-container"]').innerHTML = '';
+                    
+                    document.querySelector('#pageone div[id="opportunity-manager-container"]').innerHTML = _list_ele;
+                    
+                    $j( "ul[data-role='listview']" ).listview({
+                      defaults: true
+                    });
+                    
+                    var opp_dividers = document.querySelectorAll('.opp-manager-divider');
+                    
+                    for(var i = 0; i < opp_dividers.length; i++){
+                        opp_dividers[i].style.backgroundColor = 'white';
+                        opp_dividers[i].style.fontSize = '1em';
+                    }
+                    
+                    var opp_dividers_count = document.querySelectorAll('.opp-manager-divider span');
+                    
+                    for(var i = 0; i < opp_dividers_count.length; i++){
+                        opp_dividers_count[i].style.backgroundColor = '#8AC645';
+                        opp_dividers_count[i].style.borderColor = '#8AC645';
+                        opp_dividers_count[i].style.color = 'white';
+                        opp_dividers_count[i].style.textShadow = 'none';
+                    }
+                    
+                    var opp_li_a = document.querySelectorAll('li a');
+                    
+                    for(var i = 0; i < opp_li_a.length; i++){
+                        opp_li_a[i].classList.remove('ui-btn-icon-right');
+                        opp_li_a[i].classList.remove('ui-icon-carat-r');
+                    }
+                    
+                    if(opps.open.length == 0){
+                        document.querySelector('#pageone div[id="opportunity-manager-container"]').innerHTML = '<div style="text-align:center;color:rgb(187, 187, 187);font-weight:bold;font-size:1em;margin:50px 0;">～您还没有Open的业务机会～</div>';
+                    }
+                    
+                },
+                
+                displayOppEditor: function(_opp_status, _opp_index){
+                    ViewManager.showHeader(opps[_opp_status][_opp_index].Name,'javascript:OpportunityManager.invokeAction("cancel-edit");');
+                    document.querySelector('#pageone div[id="opportunity-manager-container"]').innerHTML = '';
+                    
+                    var _editor = document.querySelector('#opportunity-editor-template').text;
+                    
+                    var _on_options = '';
+                            
+                    for(var i = 0; i < opp_stages.length; i++){
+                        _on_options += '<option value="' + opp_stages[i] + '">' + opp_stages[i] + '</option>';
+                    }
+                    
+                    _editor = _editor.replace('{{opp-name}}', opps[_opp_status][_opp_index].Name);
+                    _editor = _editor.replace('{{opp-amount}}', opps[_opp_status][_opp_index].Amount);
+                    _editor = _editor.replace('{{opp-sfdc-amount}}', opps[_opp_status][_opp_index].SFDC_Amount1__c);
+                    _editor = _editor.replace('{{opp-end-date}}', opps[_opp_status][_opp_index].js_close_date);
+                    
+                    _editor = _editor.replace('{{opp-stage-name-list}}', _on_options);
+                    
+                    _editor = _editor.replace('{{opp-status}}', _opp_status);
+                    _editor = _editor.replace('{{opp-index}}', _opp_index);
+                    
+                    document.querySelector('#pageone div[id="opportunity-manager-container"]').innerHTML = _editor;
+                    
+                    document.querySelector('#opp-stage-name option[value="' + opps[_opp_status][_opp_index].StageName + '"]').selected = 'true';
+                    
+                    $j( 'select' ).selectmenu();
+                    $j( 'input[type="date"]' ).textinput();
+                    $j( 'input[type="text"]' ).textinput();
+                    $j( 'input[type="number"]' ).textinput();
+                },
+                
+                showAjaxLoading: function(loading_text){
+                    document.getElementById('pageone').classList.add('ui-state-disabled');
+                    
+                    $j.mobile.loading( 'show', {
+                        text: loading_text,
+                        textVisible: true,
+                        theme: 'a',
+                        textonly: false,
+                        html: '<div style="text-align:center;font-size:1em;font-weight:bold;" ><img src="{!$Resource.CelnetLogo}" width="100px"/><br/><span>' + loading_text + '</span></div>'
+                    });
+                },
+                
+                hideAjaxLoading: function(){
+                    $j.mobile.loading( 'hide');
+                    document.getElementById('pageone').classList.remove('ui-state-disabled');
+                },
+                
+                showHeader: function(header_text, anchor_href){
+                            
+                    $j('#page-header-container div').remove();
+                    
+                    var header_div = document.querySelector('#page-header-template').text;
+                    //header_div = header_div.replace('{{page-title}}', header_text);
+                    $j('#page-header-container').append(header_div);
+                    
+                    /*
+                    document.querySelector('#page-header-left-button').setAttribute('href', anchor_href);
+                    if(anchor_href == undefined){
+                        document.querySelector('#page-header-left-button').style.visibility = 'hidden';
+                    }
+                    */
+                    
+                    document.title = '业务机会 - {!$User.FirstName} {!$User.LastName}';
+                }
+            };
+            
+            var DOMManager = {
+                createOppList: function(){
+                    
+                    var _ul_from_template = document.querySelector('#opportunity-listview-template').text;
+                    var _listitems = '';
+                    
+                    if(opps.open.length > 0){
+                        var _divider = document.querySelector('#opportunity-listview-divider-template').text;
+                        _divider = _divider.replace('{{opportunity-status}}','开启');
+                        _divider = _divider.replace('{{item-size}}',opps.open.length);
+                        
+                        _listitems += _divider;
+                    }
+                    
+                    for(var i = 0; i < opps.open.length; i++){
+                        var _href = 'javascript:OpportunityManager.invokeAction("edit-opp", "open","' + i + '");';
+                        
+                        var _item = document.querySelector('#opportunity-listitem-template').text;
+                        _item = _item.replace(/{{opp-anchor-href}}/g,_href);
+                        _item = _item.replace(/{{opp-name}}/g,opps.open[i].Name);
+                        _item = _item.replace(/{{opp-amount}}/g,opps.open[i].Amount);
+                        _item = _item.replace(/{{opp-sfdc-amount}}/g,opps.open[i].SFDC_Amount1__c);
+                        _item = _item.replace(/{{opp-end-date}}/g,opps.open[i].js_close_date);
+                        _item = _item.replace(/{{opp-stage-name}}/g,opps.open[i].StageName);
+                        _listitems += _item;
+                    }
+                    
+                    _ul_from_template = _ul_from_template.replace('{{list-items}}',_listitems);
+                    
+                    return _ul_from_template;
+                    
+                }
+            };
+            
+            return {
+                pageInitiateAction: ActionManager.pageInitiateAction,
+                invokeAction: invoke,
+                handleHashChange: ActionManager.handleHashChange
+            };
+        })();
+        
+    </script>
+    
+    <!-- Page Structure Template -->
+    <script type="text/template" id="page-structure-template" >
+        <div data-role="page" id="pageone">
+            <div id="page-header-container">
+            </div>
+            <div id="opportunity-manager-container" data-role="main" class="ui-content">
+            </div>
+        </div>
+    </script>
+    
+    <!-- Page Header Template -->
+    <script type="text/template" id="page-header-template">
+      <div data-role="header" id="project-steps-header" role="banner" class="ui-header ui-bar-inherit" style="background-color: white;text-align:center;">
+        <img src="{!$Resource.CelnetLogo}" width="100px" style="margin-top:5px;"/>
+        <!--
+        <a class="ui-btn-left ui-btn ui-corner-all" id="page-header-left-button" href="#" data-role="button" role="button" style="margin-left: 5px;margin-top: 2.2px; ">返回</a>
+        <h1 class="ui-title" role="heading" aria-level="1">{{page-title}}</h1>
+        -->
+      </div>
+    </script>
+    
+    <!-- Opportunity Listview Template -->
+    <script type="text/template" id="opportunity-listview-template" >
+        <ul data-role="listview" data-inset="true" >
+        {{list-items}}
+        </ul>
+    </script>
+    
+    <!-- Opportunity Listview Divider Template -->
+    <script type="text/template" id="opportunity-listview-divider-template" >
+        <li data-role="list-divider" class="ui-li-has-count opp-manager-divider ui-li-divider ui-bar-inherit ui-first-child" role="heading" style="font-size: 1em; background-color: white;">{{opportunity-status}}<span class="ui-li-count ui-body-inherit" style="border-color: rgb(138, 198, 69); color: white; text-shadow: none; background-color: rgb(138, 198, 69);">{{item-size}}</span></li>
+    </script>
+    
+    <!-- Opportunity Listitem Template -->
+    <script type="text/template" id="opportunity-listitem-template" >
+        <li><a href='{{opp-anchor-href}}' >
+        <div>
+            <h2>{{opp-name}}</h2>
+            <table style="font-weight:normal;width:100%;">
+                <tr>
+                    <td style="width:50%;">金额：{{opp-amount}}</td>
+                    <td>阶段：{{opp-stage-name}}</td>
+                </tr>
+                <tr>
+                    <td style="width:50%;">SFDC($)：{{opp-sfdc-amount}}</td>
+                    <td>结束：{{opp-end-date}}</td>
+                </tr>
+            </table>
+        </div>
+        </a></li>
+    </script>
+    
+    <!-- Opportunity Editor Template -->
+    <script type="text/template" id="opportunity-editor-template">
+      <div>
+          <div style="margin:10px;">
+            <label for="opp-name" id="opp-name-label" >业务机会名称:</label>
+            <input type="text" name="opp-name" id="opp-name" value="{{opp-name}}" />
+          </div>
+          
+          <div style="margin:10px;">
+            <label for="opp-stage-name" id="opp-stage-name-label" >阶段:</label>
+            <select id="opp-stage-name" name="opp-stage-name" >
+              {{opp-stage-name-list}}
+            </select>
+          </div>
+          
+          <div style="margin:10px;">
+            <label for="opp-amount">金额:</label>
+            <input type="number" name="opp-amount" id="opp-amount" value="{{opp-amount}}" />
+          </div>
+          
+          <div style="margin:10px;">
+            <label for="opp-sfdc-amount">SFDC金额($):</label>
+            <input type="number" name="opp-sfdc-amount" id="opp-sfdc-amount" value="{{opp-sfdc-amount}}" />
+          </div>
+          
+          <div style="margin:10px;">
+            <label for="opp-end-date">结束日期:</label>
+            <input type="date" name="opp-end-date" id="opp-end-date" value="{{opp-end-date}}" />
+          </div>
+          
+      </div>
+      <div class="control-buttons" style="text-align: center;">
+          <a class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all" id="step-cancel-edit-button" data-inline="true" data-role="button" role="button" href="javascript:OpportunityManager.invokeAction('save-opp', '{{opp-status}}', '{{opp-index}}');">保存</a>
+          <a class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all" id="step-edit-button" data-inline="true" data-role="button" role="button" href="javascript:OpportunityManager.invokeAction('cancel-edit');">取消</a>
+      </div>
+    </script>
+</head>
+<body> 
+</body>
+</html>
+</apex:page>

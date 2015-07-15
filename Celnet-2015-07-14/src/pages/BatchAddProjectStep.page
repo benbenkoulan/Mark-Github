@@ -1,0 +1,104 @@
+<!-- 
+    功能:批量添加项目阶段
+    作者:Crazy
+    日期:2014-01-20 
+ -->
+<apex:page standardController="SFDC_Projects__c" extensions="BatchAddProjectStepController">
+<script>
+function checkAll(cb)
+{
+    var inputElem = document.getElementsByTagName("input");
+    for(var i=0; i<inputElem.length; i++)
+    {
+        if(inputElem[i].id.indexOf("selectOpt")!=-1)
+        inputElem[i].checked = cb.checked;
+    }
+}
+function Test(docid) 
+{
+    var s=docid.substring(0,22);
+    var skje = s+':collbysteps';
+    var obj = document.getElementById(skje);
+    if(document.getElementById(docid).checked)
+    {
+        
+        obj.style.display='block';
+    }
+    else
+    {
+        
+        obj.style.display='none';
+    }
+}
+</script>
+<script>
+function SavePlan()
+{
+    SaveProjectStep();
+}
+</script>
+<head>
+    <title>修改添加项目阶段</title>
+</head>
+<body>
+<apex:form id="ert">
+<apex:actionFunction name="SaveProjectStep" action="{!SaveProjectStep}"/>
+<apex:pageBlock title="项目阶段管理" mode="edit" id="opppb">  
+    <apex:outputLabel value="项目名称：{!sfdc_Project.Name}" /><br/>
+    <apex:pageMessages />
+<apex:pageBlockTable value="{!listProjectStep}" var="ps" id="asds">
+    <apex:column Style="width:25px">
+        <apex:facet name="header" >
+             <input type="checkbox" id="chkall" onclick="checkAll(this)" />
+        </apex:facet>
+        <apex:inputCheckbox value="{!ps.IsDelete}" id="selectOpt"/> 
+    </apex:column>
+    <apex:column headerValue="阶段名称" style="width:1%">
+        <apex:inputField value="{!ps.pro.NStageName__c}" style="width:150px;"/>
+    </apex:column>
+    <apex:column headerValue="计划开始时间" style="width:1%">
+        <apex:inputText value="{!ps.ssDate}" id="SSdate"  onclick="DatePicker.pickDate(true, this.id, false);" style="width:80px;"/>
+    </apex:column>
+    <apex:column headerValue="计划结束时间" style="width:50px">
+        <apex:inputText value="{!ps.scDate}" id="SCdate"  onclick="DatePicker.pickDate(true, this.id, false);" style="width:80px;"/>
+    </apex:column>
+    <apex:column headerValue="状态" style="width:50px" >
+        <apex:inputField value="{!ps.pro.NState__c}" style="width:80px;"/>
+    </apex:column>
+    <apex:column headerValue="实际开始时间" style="width:50px">
+        <apex:inputText value="{!ps.startDate}" id="Startdate"  onclick="DatePicker.pickDate(true, this.id, false);" style="width:80px;"/>
+    </apex:column>
+    <apex:column headerValue="实际结束时间" style="width:50px">
+        <apex:inputText value="{!ps.endDate}" id="Enddate"  onclick="DatePicker.pickDate(true, this.id, false);" style="width:80px;"/>
+    </apex:column>  
+    <apex:column headerValue="收款阶段" style="width:50px"> 
+        <apex:inputField id="sk" value="{!ps.pro.Shoukuan__c}" onclick="Test(this.id);" style="width:80px;"/> 
+    </apex:column>
+    <apex:column headerValue="阶段收款金额" style="width:150px"> 
+        <apex:inputField value="{!ps.pro.Collectionbysteps__c}" id="collbysteps" style="{!ps.ShowStyle}" /> 
+    </apex:column>
+    <apex:column headerValue="阶段描述" style="width:200px">
+        <apex:inputField value="{!ps.pro.Stagedis__c}" style="width:400px;"/>
+    </apex:column>
+</apex:pageBlockTable>
+</apex:pageBlock>
+<table align="left">
+    <tr>
+        <td>
+            <apex:commandButton value="添加" action="{!AddProjectStep}" reRender="ert"/> 
+        </td>
+        <td>
+            <apex:commandButton value="删除" action="{!DeleteProjectStep}" reRender="ert"/> 
+        </td>
+        
+        <td>
+            <apex:commandButton value="保存" onclick="SavePlan();" reRender="ert"/> 
+        </td>
+        <td>
+            <apex:commandButton value="返回" action="{!Cancel}" /> 
+        </td>
+    </tr>
+</table>
+</apex:form>
+</body>
+</apex:page>

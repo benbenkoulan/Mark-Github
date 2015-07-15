@@ -1,0 +1,69 @@
+<apex:page standardController="Evaluation_Plan__c" showHeader="false" extensions="CtrlBatchCreateEvaluationPlan">
+<script>
+function checkAll(cb)
+{
+    var inputElem = document.getElementsByTagName("input");
+    for(var i=0; i<inputElem.length; i++)
+    {
+        if(inputElem[i].id.indexOf("selectOpt")!=-1)
+        inputElem[i].checked = cb.checked;
+    }
+} 
+</script>
+<script>
+if({!flag})
+{
+    var r=confirm("数据已经保存成功,是否继续添加")
+    if (r==false)
+    {
+        window.history.go(-2);
+    }
+}
+</script>
+<head>
+    <title>创建销售项目Evaluation Plan</title>
+</head>
+<body>
+<apex:form id="ert">
+<apex:messages id="msg" styleClass="errorMsg" layout="table" style="margin-top:1em;"/>
+<apex:pageBlock mode="edit" id="opppb">
+<apex:pageBlockTable value="{!listEvaluationPlan}" var="es" id="asds">
+    <apex:column Style="width:25px">
+        <apex:facet name="header" >
+             <input type="checkbox" id="chkall" onclick="checkAll(this)" />
+        </apex:facet>
+        <apex:inputCheckbox value="{!es.IsDelete}" id="selectOpt"/> 
+    </apex:column>
+	<apex:column headerValue="任务类型" Style="width:80px">
+        <apex:inputField value="{!es.epc.tasktype__c}" />
+    </apex:column>
+    <apex:column headerValue="交付物" Style="width:80px">
+        <apex:inputField value="{!es.epc.Deliverables__c}" />
+    </apex:column>
+    <apex:column headerValue="结束日期" Style="width:80px">
+        <apex:inputField value="{!es.epc.endate__c}" />
+    </apex:column>
+    <apex:column headerValue="状态" Style="width:80px">
+        <apex:inputField value="{!es.epc.status__c}" />
+    </apex:column>
+    <apex:column headerValue="负责人" Style="width:80px">
+        <apex:inputField value="{!es.epc.Owner__c}" />
+    </apex:column>
+</apex:pageBlockTable>
+</apex:pageBlock>
+<table align="left">
+	<tr>
+	    <td>
+	        <apex:commandButton value="添加" action="{!AddEvaluationPlan}" reRender="ert"/> 
+	    </td>
+	    <td>
+            <apex:commandButton value="删除" action="{!DeleteEvaluationPlan}" reRender="ert"/> 
+        </td>
+        <td>
+            <apex:commandButton value="保存" action="{!SaveEvaluationPlan}"/> 
+        </td>
+	</tr>
+</table>
+</apex:form>
+</body>
+</apex:page>

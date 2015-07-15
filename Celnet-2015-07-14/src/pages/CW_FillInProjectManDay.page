@@ -1,0 +1,513 @@
+<apex:page docType="html-5.0" showHeader="false" applyBodyTag="false" id="page" controller="CW_FillInProjectManDayController" standardStylesheets="false">
+    <head>
+        <title>填写项目人天-{!UserName}</title>
+        <!-- Baidu统计代码开始 -->
+        <script>
+            var _hmt = _hmt || [];
+            (function() {
+              var hm = document.createElement("script");
+              hm.src = "//hm.baidu.com/hm.js?8556eb3708f6a51cff7aeb374f5414c2";
+              var s = document.getElementsByTagName("script")[0]; 
+              s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+        <!-- Baidu统计代码结束 -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/> 
+        <meta http-equiv='cache-control' content='no-cache' />
+        <meta http-equiv='expires' content='0' />
+        <meta http-equiv='pragma' content='no-cache' />
+        <meta content="telephone=no" name="format-detection" />
+        
+        <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    
+        <script>
+            $j = jQuery.noConflict();
+            
+            $j( document ).on( "mobileinit", function() {
+                $j.mobile.autoInitializePage = false;
+            });
+        </script>
+        
+        <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/jquery.mobile.icons.min.css')}" />
+        <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/celnet.min.css')}" />
+        <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+        <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+        
+        <script type="text/javascript">
+            $j = jQuery.noConflict();
+            
+            var jqm_theme = 'b';
+            
+            $j(document).ready(function(){
+                $j.mobile.initializePage();
+                $j('#manday-page').page({theme:jqm_theme});
+                
+                console.log($j('#tabs'));
+                $j( "#tabs" ).tabs("option", "active", 2);
+                $j( "#tabs" ).tabs("option", "show", {duration: 300});
+                
+                document.getElementById('thisweek-tab').classList.add('ui-btn-active');
+                initiateStyles();
+                
+                if('{!hasLastLastWeekMW}' == 'false'){
+                    displayReminders('lastlastweek');
+                }
+                
+                if('{!hasLastWeekMW}' == 'false'){
+                    displayReminders('lastweek');
+                }
+                
+                if('{!hasThisWeekMW}' == 'false'){
+                    displayReminders('thisweek');
+                }
+                
+            }); 
+            
+            function displayReminders(week_id){
+                var _div = document.createElement('div');
+                _div.style.marginTop = '10px';
+                _div.style.marginBottom = '10px';
+                
+                var _div_div = document.createElement('div');
+                _div_div.style.margin = '10px';
+                
+                var _div_div_text = document.createTextNode('{!reminder}');
+                _div_div.appendChild(_div_div_text);
+                
+                var _div_img = document.createElement('img');
+                _div_img.src = '{!reminderUrl}';
+                _div_img.setAttribute('width', '100%');
+                
+                _div.appendChild(_div_div);
+                _div.appendChild(_div_img);
+                
+                document.querySelector('#' + week_id + ' .content-container').appendChild(_div);
+                document.querySelector('#' + week_id + ' .control-buttons a').classList.add('ui-state-disabled');
+            }
+            
+            function initiateStyles(){
+                document.getElementById('tabs').style.paddingLeft = '0px';
+                document.getElementById('tabs').style.paddingRight = '0px';
+                
+                var week_tabs = document.getElementsByClassName( 'week-tab' );
+                for( var i = 0; i < week_tabs.length; i++ ) {
+                    week_tabs[i].style.fontSize = '1em';
+                }
+                
+                var week_descriptions = document.getElementsByClassName( 'week-description' );
+                for( var i = 0; i < week_descriptions.length; i++ ){
+                    week_descriptions[i].style.textAlign = 'center';
+                    week_descriptions[i].style.paddingBottom = '12px';
+                }
+                
+                var content_containers = document.getElementsByClassName( 'content-container' );
+                for( var i = 0; i < content_containers.length; i++){
+                    content_containers[i].style.borderBottom = 'rgba(0,0,0,0.15) 1px solid';
+                    content_containers[i].style.borderTop = 'rgba(0,0,0,0.15) 1px solid';
+                }
+                
+                var manday_containers = document.getElementsByClassName( 'manday-container' );
+                for( var i = 0; i < manday_containers.length; i++){
+                    manday_containers[i].style.margin = '10px';
+                }
+                
+                var control_buttons = document.getElementsByClassName( 'control-buttons' );
+                for( var i = 0; i < control_buttons.length; i++ ) {
+                    control_buttons[i].style.textAlign = 'center';
+                    control_buttons[i].style.margin = '10px';
+                }
+            }
+            
+            function saveManDay(week_id){
+                _hmt.push(['_trackEvent', '人天', '保存我的人天']);//百度统计事件跟踪代码
+                document.getElementById('tabs').classList.add('ui-state-disabled');
+                            
+                $j.mobile.loading( 'show', {
+                    text: '保存中',
+                    textVisible: true,
+                    theme: 'a',
+                    textonly: false,
+                    html: '<div style="text-align:center;font-size:1em;font-weight:bold;" ><img src="{!$Resource.CelnetLogo}" width="100px"/><br/><span>保存中</span></div>'
+                });
+                
+                document.getElementById('page:manday:selected-weekid').value = week_id;
+                
+                saveMD();
+                document.getElementById( week_id + '-tab').classList.add('ui-btn-active');
+            }
+            
+            function hideAjaxWaiting(){
+                $j.mobile.loading( 'hide' );
+                
+                $j.mobile.loading( 'show', {
+                    text: '保存',
+                    textVisible: true,
+                    theme: 'a',
+                    textonly: false,
+                    html: '<div style="text-align:center;font-size:1em;font-weight:bold;" ><img src="{!$Resource.CelnetLogo}" width="100px"/><br/><span>保存成功</span></div>'
+                });
+                setTimeout(function(){
+                    $j.mobile.loading('hide');
+                    document.getElementById('tabs').classList.remove('ui-state-disabled');
+                },2000);
+            }
+            
+        </script>
+    </head>
+    <body >
+        <div data-role="page" id="manday-page">
+        <apex:form id="manday" >
+        <apex:inputHidden id="selected-weekid" immediate="true" value="{!selectedWeek}"/>
+        <apex:actionFunction action="{!saveManDay}" reRender="selected-weekid" name="saveMD" oncomplete="hideAjaxWaiting()"/>
+        
+        <div data-role="tabs" id="tabs">
+          <div data-role="navbar">
+            <ul>
+              <li ><a id="lastlastweek-tab" href="#lastlastweek" data-ajax="false" class="week-tab" >上上周</a></li>
+              <li ><a id="lastweek-tab" href="#lastweek" data-ajax="false" class="week-tab" >上周</a></li>
+              <li ><a id="thisweek-tab" href="#thisweek" data-ajax="false" class="week-tab" >本周</a></li>
+            </ul>
+          </div>
+          
+          <div id="lastlastweek" class="ui-body-d ui-content">
+              <div class="week-description">
+                  <span>{!last_lastStandardWeek}</span>
+              </div>
+              <div class="content-container" >
+                  <apex:repeat value="{!last_lastWeekMW}" var="llmw">
+                      <div class="ui-field-contain manday-container" >
+                          <label>{!llmw.projectName}</label>
+                          <apex:input type="range" value="{!llmw.days}" html-min="0" html-max="5" html-step="0.5" html-data-highlight="true"/>
+                      </div>
+                  </apex:repeat>
+              </div>
+              <div class="control-buttons" >
+                  <a id="SaveLastLastWeekManDay" href="javascript:saveManDay('lastlastweek');" data-role="button" data-inline="true" class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all">保存</a>
+              </div>
+          </div>
+          <div id="lastweek" class="ui-body-d ui-content">
+              <div class="week-description">
+                  <span>{!lastStandardWeek}</span>
+              </div>
+              <div class="content-container" >
+                  <apex:repeat value="{!lastWeekMW}" var="lmw">
+                      <div class="ui-field-contain manday-container" >
+                          <label>{!lmw.projectName}</label>
+                          <apex:input type="range" value="{!lmw.days}" html-min="0.0" html-max="5.0" html-step="0.5" html-data-highlight="true"/>
+                      </div>
+                  </apex:repeat>
+              </div>
+              <div class="control-buttons">
+                  <a id="SaveLastWeekManDay" href="javascript:saveManDay('lastweek');" data-role="button" data-inline="true" class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all">保存</a>
+              </div>
+          </div>
+          <div id="thisweek" class="ui-body-d ui-content">
+              <div  class="week-description">
+                  <span>{!standardWeek}</span>
+              </div>
+              <div class="content-container" >
+                  <apex:repeat value="{!thisWeekMW}" var="tmw">
+                      <div class="ui-field-contain manday-container" >
+                          <label>{!tmw.projectName}</label>
+                          <apex:input type="range" value="{!tmw.days}" html-min="0" html-max="5" html-step="0.5" html-data-highlight="true"/>
+                      </div>
+                  </apex:repeat>
+              </div>
+              <div class="control-buttons" >
+                  <a id="SaveThisWeekManDay" href="javascript:saveManDay('thisweek');" data-role="button" data-inline="true" class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all">保存</a>
+              </div>
+          </div>
+        </div>
+        </apex:form>
+        </div>
+    </body>
+</apex:page>
+<!--<apex:page showHeader="false" applyBodyTag="false" id="page" controller="CW_FillInProjectManDayController" standardStylesheets="false">
+    <head>
+        <title>填写项目人天-{!UserName}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <script src="{!URLFOR($Resource.CW_Resource,'/jquery-min.js')}"></script>
+        <script src="{!URLFOR($Resource.CW_Resource,'/tytabs.jquery.min.js')}"></script>
+        <link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.CW_Resource,'/styles.css')}" media="all" />
+        <script type="text/javascript">
+            $(document).ready(function(){
+    $("#tabsholder").tytabs({
+                            tabinit:"3",
+                            fadespeed:"fast"
+                            });
+                }); 
+        </script>
+        <style type="text/css">
+        .center {
+        width:100%;
+        margin:10px auto 0 auto;
+        }
+        
+        .marginbot {
+        margin-bottom:15px;
+        height: auto;
+        }
+        
+        ul.list li {
+        list-style-type:none;
+        }
+        
+        ul.tabs {
+        margin:0px auto;
+        padding:0px 3%;
+        width:100%;
+        overflow:hidden;
+        text-align: center;
+        }
+        
+        ul.tabs li {
+        margin-left:2%;
+        border:1px solid #84C1FF;
+        border-bottom:0px;
+        list-style-type:none;
+        width:27%;
+        display:block;
+        float:left;
+        color:#000;
+        font-size:18px;
+        padding:8px 0px;
+        text-align:center;
+        background-color:#84C1FF;
+        -moz-border-radius: 4px 4px 0 0;
+        -webkit-border-radius: 4px 4px 0 0;
+        cursor:pointer;
+        } 
+        
+        ul.tabs li:hover {
+        background-color:#46A3FF;
+        border:1px solid #46A3FF;
+        }
+        
+        ul.tabs li.current {
+        background-color:#46A3FF;
+        border:1px solid #46A3FF;
+        padding:8px;
+        }
+        
+        .tabscontent {
+        border-top:2px solid #46A3FF;
+        padding:8px 0 0 0;
+        display:none;
+        width:93%;
+        margin:0px auto;
+        text-align:justify;
+        color:#000;
+        }
+        .cw_li{font-size: 18px;width: 100%;height:auto; padding-bottom:5px; margin:10% 0px; border-bottom: 2px dotted #43b0ce;display: block}
+        .project{float: left; font-size: 16px;width:52%;height:30%; margin-right: 1%;}
+        .manday{float: left;width: 46%;height: 30%; }
+        select {width: 46%;float: left;display: block;height:35px; margin-left: 4%;}
+        .standaraWeek{width: 100%;text-align: center;font-size: 15px;}
+        #BgDiv1{background-color:#000; position:absolute; z-index:9999;  display:none;left:0px; top:0px; width:100%; height:100%;opacity: 0.6; filter: alpha(opacity=60);}
+        .btn{
+            width:100%;
+            height:100%;
+          display: inline-block;
+          line-height: 25px;
+          font-size:20px;
+        transition: all .3s ease-out;
+          text-transform: uppercase;
+          border-radius: 5px;
+          border: 1px solid #46A3FF;
+          color: #fff;
+          font-weight: bold;
+          cursor: pointer;
+          text-shadow:0 1px 2px rgba(0,0,0,.4);
+          box-shadow: inset 1px 0 0  #559ad5,inset -1px 0 0  #559ad5,inset 0 1px 0  #559ad5,inset 0 -1px 0  #559ad5,0 0 1px rgba(0,0,0,0.5);
+          background: #46A3FF; /* Old browsers */
+          background: -*-linear-gradient(to bottom,  #4086c2 0%,#2989d8 100%,#3378b1 100%); 
+        }
+        html{height:100%;  overflow:hidden;}
+        body{overflow:hidden;height:100%;}
+        </style>
+        <script>
+            function changeButs()
+            {
+                $("#BgDiv1").css({ display: "block", height: $(document).height() });
+                var buts = document.getElementById("page:manday:buts");
+                buts.value = "保存中..";
+                buts.style.backgroundColor = "gray";
+                var tab = document.getElementById("page:manday:tab");
+                var $li = $(".current")[0];
+                if($li.innerText == "上上周")
+                {
+                    tab.value = '1';
+                }
+                else if($li.innerText == "上周")
+                {
+                    tab.value = '2';
+                }
+                else
+                {
+                    tab.value = '3';
+                }
+            }
+        </script>
+        <script>
+            function changeDiv()
+            {
+                var flag = '{!flag}';
+                if(flag == 'success')
+                {
+                    alert('人天填写成功！');
+                    var flag = document.getElementById("page:manday:flag");
+                    $("#BgDiv1").css("display" , "none");
+                    flag.value = '';
+                    var tab = document.getElementById("page:manday:tab");
+                    var i = parseInt(tab.value);
+                    $(".tabs").children("li").removeClass("current");
+                    $("#tabsholder").tytabs({
+                            tabinit:tab.value,
+                            fadespeed:"fast"
+                            });
+                }
+            }
+        </script>
+    </head>
+    <body onload="changeDiv();">
+        <div id="BgDiv1"></div>
+        <apex:form id="manday" onsubmit="changeButs();">
+        <apex:inputHidden value="{!flag}" id="flag" />
+        <apex:inputHidden value="{!tab}" id="tab" />
+        <div class="center">
+        
+            <div id="tabsholder">
+                <ul class="tabs">
+                    <li id="tab1">上上周</li>
+                    <li id="tab2">上周</li>
+                    <li id="tab3">本周</li>
+                </ul> 
+                            
+                <div class="contents marginbot">
+                    <div id="content1" class="tabscontent">
+                        <div class="standaraWeek">{!last_lastStandardWeek}</div>
+                        <div style="margin-top: 10px;display: {!last_lastWeekListDisplay}">
+                            <ul style="list-style: none;padding: 0px;margin: 0px; width: 100%;height: auto;">
+                                <apex:repeat value="{!last_lastUpdateMandayList}" var="manday">
+                                    <li class="cw_li">
+                                        <div class="project">{!manday.projectName}</div>
+                                        <div class="manday">
+                                            <apex:selectList value="{!manday.inte}" size="1">
+                                                <apex:selectOptions value="{!integerList}" />
+                                            </apex:selectList>
+                                            <apex:selectList value="{!manday.dec}" size="1">
+                                                <apex:selectOptions value="{!decimalList}" />
+                                            </apex:selectList>
+                                        </div>
+                                        <div style="clear: both;"></div>
+                                    </li>
+                                </apex:repeat>
+                                <apex:repeat value="{!last_lastInsertMandayList}" var="manday">
+                                    <li class="cw_li">
+                                        <div class="project">{!manday.projectName}</div>
+                                        <div class="manday">
+                                            <apex:selectList value="{!manday.inte}" size="1">
+                                                <apex:selectOptions value="{!integerList}" />
+                                            </apex:selectList>
+                                            <apex:selectList value="{!manday.dec}" size="1">
+                                                <apex:selectOptions value="{!decimalList}" />
+                                            </apex:selectList>
+                                        </div>
+                                        <div style="clear: both;"></div>
+                                    </li>
+                                </apex:repeat>
+                            </ul>
+                        </div>
+                        <div style="width:100%;display: {!last_lastWeekDisplay}">
+                            <div style="font-size: 16px;margin-bottom: 4%;">{!reminder}</div>
+                            <img src="{!reminderUrl}" style="width:100%; height: 30%;"  />
+                        </div>
+                    </div>
+                    <div id="content2" class="tabscontent">
+                        <div class="standaraWeek">{!lastStandardWeek}</div>
+                        <div style="margin-top: 10px;display: {!lastWeekListDisplay}">
+                            <ul style="list-style: none;padding: 0px;margin: 0px; width: 100%;height: auto;">
+                                <apex:repeat value="{!lastUpdateMandayList}" var="manday">
+                                    <li class="cw_li">
+                                        <div class="project">{!manday.projectName}</div>
+                                        <div class="manday">
+                                            <apex:selectList value="{!manday.inte}" size="1">
+                                                <apex:selectOptions value="{!integerList}" />
+                                            </apex:selectList>
+                                            <apex:selectList value="{!manday.dec}" size="1">
+                                                <apex:selectOptions value="{!decimalList}" />
+                                            </apex:selectList>
+                                        </div>
+                                        <div style="clear: both;"></div>
+                                    </li>
+                                </apex:repeat>
+                                <apex:repeat value="{!lastInsertMandayList}" var="manday">
+                                    <li class="cw_li">
+                                        <div class="project">{!manday.projectName}</div>
+                                        <div class="manday">
+                                            <apex:selectList value="{!manday.inte}" size="1">
+                                                <apex:selectOptions value="{!integerList}" />
+                                            </apex:selectList>
+                                            <apex:selectList value="{!manday.dec}" size="1">
+                                                <apex:selectOptions value="{!decimalList}" />
+                                            </apex:selectList>
+                                        </div>
+                                        <div style="clear: both;"></div>
+                                    </li>
+                                </apex:repeat>
+                            </ul>
+                        </div>
+                        <div style="width:100%;display: {!lastWeekDisplay}">
+                            <div style="font-size: 16px;margin-bottom: 4%;">{!reminder}</div>
+                            <img src="{!reminderUrl}" style="width:100%; height: 30%;"  />
+                        </div>
+                    </div>
+                    <div id="content3" class="tabscontent">
+                        <div class="standaraWeek">{!standardWeek}</div>
+                        <div style="margin-top: 10px;display: {!thisWeekListDisplay}">
+                            <ul style="list-style: none;padding: 0px;margin: 0px; width: 100%;height: auto;">
+                                <apex:repeat value="{!thisWeekUpadteManday}" var="manday">
+                                    <li class="cw_li">
+                                        <div class="project">{!manday.projectName}</div>
+                                        <div class="manday">
+                                            <apex:selectList value="{!manday.inte}" size="1">
+                                                <apex:selectOptions value="{!integerList}" />
+                                            </apex:selectList>
+                                            <apex:selectList value="{!manday.dec}" size="1">
+                                                <apex:selectOptions value="{!decimalList}" />
+                                            </apex:selectList>
+                                        </div>
+                                        <div style="clear: both;"></div>
+                                    </li>
+                                </apex:repeat>
+                                <apex:repeat value="{!thisWeekInsertManday}" var="manday">
+                                    <li class="cw_li">
+                                        <div class="project">{!manday.projectName}</div>
+                                        <div class="manday">
+                                            <apex:selectList value="{!manday.inte}" size="1">
+                                                <apex:selectOptions value="{!integerList}" />
+                                            </apex:selectList>
+                                            <apex:selectList value="{!manday.dec}" size="1">
+                                                <apex:selectOptions value="{!decimalList}" />
+                                            </apex:selectList>
+                                        </div>
+                                        <div style="clear: both;"></div>
+                                    </li>
+                                </apex:repeat>
+                            </ul>
+                        </div>
+                        <div style="width:100%;display: {!thisWeekDisplay}">
+                            <div style="font-size: 16px;margin-bottom: 4%;">{!reminder}</div>
+                            <img src="{!reminderUrl}" style="width:100%; height: 30%;"  />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="width: 40%; height:8%; position: absolute;left: 30%;top:91%;">
+            <apex:commandButton value="保存 " id="buts" status="saveManday" action="{!submit}" styleClass="btn" />
+         </div>
+         <div id="shclKeyframes" style="position:absolute;left: 68%;top:90%;width: 20%;height: 8%;display: none;"></div>      </apex:form>
+    </body>
+</apex:page>-->

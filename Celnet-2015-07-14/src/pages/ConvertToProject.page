@@ -1,0 +1,32 @@
+<apex:page standardController="Opportunity" showHeader="true" extensions="ConvertToProjectController">
+<apex:form id="form">
+<apex:pageBlock title="{!Opp.Name}" id="opppb">
+	<apex:pageMessages />
+    <apex:actionRegion >
+   		<apex:selectRadio value="{!ConvertType}" disabled="{!IsError}" > 
+	        <apex:selectOption itemValue="NewProject" itemLabel="转化为一个全新的项目"/>
+	   		<apex:selectOption itemValue="AttachToOldProject" itemLabel="附加到已有的项目"/>
+	   		<apex:actionSupport event="onchange" action="{!UpdateMessage}" rerender="opppb"/>
+		</apex:selectRadio>
+	</apex:actionRegion>
+	<apex:outputPanel id="ProjectPanel">
+		<apex:outputLabel value="指定一个您要附加到的项目：" for="ProjectField" rendered="{!IsShowProject}"/>
+		<apex:inputField id="ProjectField" value="{!Opp.TargetProject__c}" rendered="{!IsShowProject}"/>
+	</apex:outputPanel>
+	<apex:pageBlockButtons location="bottom">
+    	<apex:commandButton value="转化" action="{!Convert}" disabled="{!IsError}"/> 
+    	<apex:commandButton value="取消" action="{!Cancel}"/>
+    </apex:pageBlockButtons>
+</apex:pageBlock>
+<table align="left">
+    <tr>
+        <td>
+            
+        </td>
+        <td>
+             
+        </td>
+    </tr>
+</table>
+</apex:form>
+</apex:page>

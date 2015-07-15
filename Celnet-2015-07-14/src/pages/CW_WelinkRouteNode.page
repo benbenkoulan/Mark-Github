@@ -1,0 +1,157 @@
+<apex:page showHeader="false" standardStylesheets="false" id="page" Controller="CW_WelinkRouteNodeController">
+<html>
+<head>
+    <title>Welink开发路径</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <meta name="Title" content="Visualforce" />
+    <meta name="Description" content="Visualforce" />
+    <meta name="Keywords" content="AJAX,Web2.0" />
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <!--meta name="viewport" content="width=device-width, initial-scale=1" /-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="https://c.ap1.visual.force.com/resource/1434450013000/bootstrap" rel="stylesheet"/>
+    <link href="https://c.ap1.visual.force.com/resource/1434450391000/bootstrapresponsivecss" rel="stylesheet"/>
+    <link href="https://c.ap1.visual.force.com/resource/1434450239000/docscss" rel="stylesheet"/>
+    
+    <!--[if lt IE 9]>
+            <script src="../lib/html5shim/html5.js"></script>
+        <![endif]-->
+    <style>
+    html , body,h5,hr{margin:0;padding:0;width:100%;}
+        body.from-demo {
+            padding-top: 0;
+            background-image: url(../res/img/square.gif);
+        body.from-demo .navbar {
+        }
+            display: none;
+        }
+        body.from-demo .subhead {
+            display: none;
+        }
+        body.from-demo .footer {
+            display: none;
+        }
+        body.from-demo ul.timeline {
+            margin-top: 1px;
+        }
+        .logo{ 
+        //background: url("https://c.ap1.visual.force.com/resource/1430891458000/CelnetLogo") fixed center center no-repeat;
+        
+        background-size: cover;
+        
+          width:100%;
+          zoom:0.5;
+        }
+    </style>
+</head>
+<body data-spy="scroll" data-target=".bs-docs-sidebar">
+    
+    <div  Style="background:#fff;padding:15px;border-bottom:2px;" >
+        <div class="container" Style="background:#fff;height:84px;">
+           <div class="logo" style="width:48%;float:left;">
+                 <img src="https://c.ap1.visual.force.com/resource/1430891458000/CelnetLogo"/>
+           </div>
+           <div style="width:52%;float:left;">
+             <span style="font-size:18px;"> 当前版本：</span><span style="font-size:16px;"><apex:outputText value="{!CurrentVersion.Name}" styleclass=""/></span><br/>
+             <span style="font-size:12px;"><apex:outputText value="{!CurrentVersion.System_Version__c}" styleclass=""/></span>
+           </div>
+       
+        </div>
+    </div>
+    <hr />
+    <div class="container">
+        <style>
+            ul.timeline {
+                list-style-type: none;
+                background: url("https://c.ap1.visual.force.com/resource/1434595215000/lineimg") repeat-y scroll 30px 0 transparent;
+                margin: 30px 0;
+                padding: 0;
+            }
+            
+            ul.timeline li {
+                position: relative;
+                margin-bottom: 10px;
+            }
+            ul.timeline li .time {
+                position: absolute;
+                width: 90px;
+                text-align: left;
+                left: 4px;
+                top: 16px;
+                color: #999;
+            }
+            ul.timeline li .version {
+                position: absolute;
+                width: 150px;
+                text-align: left;
+                left: 0px;
+                top: 30px;
+                font-size: 18px;
+                line-height: 35px;
+                color: #000;
+                overflow: hidden;
+            }
+            ul.timeline li .number {
+                position: absolute;
+               // background: url("https://c.ap1.visual.force.com/resource/1434525008000/dotimg") no-repeat scroll 0 0 transparent;
+                background:#9ACD32;                
+                width: 20px;
+                height: 20px;
+                border-radius:10px;
+                //border:5px;
+               // border-color: #0000ff;
+                left: 22px;
+                line-height: 56px;
+                text-align: center;
+                color: #fff;
+                font-size: 14px;
+            }
+            ul.timeline li.alt .number {
+                background-image: url("https://c.ap1.visual.force.com/resource/1434525008000/dotimg");
+            }
+            ul.timeline li .content {
+                margin-left: 40px;
+                
+            }
+            ul.timeline li .content pre {
+                background-color: #EEEEEE;
+                padding: 10px;
+                color: #000;
+                font-size: 13px;
+                line-height: 20px;
+            }
+            ul.timeline li.alt .content pre{
+                background-color: #EEEEEE;
+            }
+        </style>
+        
+        
+            
+        <ul class="timeline">
+        <apex:repeat value="{!WelinkRNList}" var="wrn">
+                               
+           <li style="padding:8px;padding-top: 0px;"><div class="time" style="font-size:10px;"></div><div class="version" ></div>
+             <div class="number" style="background:{!wrn.NodeColor__c}; "></div>
+             <div class="content">
+               <span style="font-size:20px;font-weight:bold ;text-align:left;">{!wrn.Name}</span>&nbsp;|&nbsp;<span style="color: #999;font-size:16px;"><apex:outputField value="{!wrn.ReleaseDate__c}"/></span><br/>
+               <pre> <apex:outputField value="{!wrn.Description__c}"/> </pre>
+             </div>
+           </li>       
+        </apex:repeat>
+
+        </ul>
+        
+        
+        <br />
+        <br />
+    </div>
+  
+   
+    
+    
+    
+    
+</body>
+</html>
+</apex:page>

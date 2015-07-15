@@ -1,0 +1,95 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" id="page" docType="html-5.0" controller="CampaignFeedBackController">
+    <head>
+        <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+        <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+        <script type="text/javascript" src="{!URLFOR($Resource.HandlerBar, '/handlebars-v3.0.1.js')}"></script>
+        <script>
+            $j = jQuery.noConflict();
+            $j(document).bind("mobileinit" , function(){
+                $j("body").addClass("ui-state-disabled");
+                $j.mobile.loading('show' ,{
+                    text:'加载中..',
+                    textVisible:true,
+                    theme:'a',
+                    textonly:false,
+                    html:"" 
+                });
+                $j.mobile.autoInitializePage = false;
+            });
+        </script>
+        <script type="text/x-handlerbars-tempalte" id="Question_Template">
+            {{#each this}}
+            <div class="ui-field-contain">
+                <label for="{{questionName}}">{{questionLabel}}</label>
+                <select name="{{questionName}}">
+                    {{#each questionValues}}
+                        {{#compare ../questionValue this}}
+                        <option value="{{this}}" selected="selected">{{this}}</option>
+                        {{else}}
+                        <option value="{{this}}">{{this}}</option>
+                        {{/compare}}
+                    {{/each}}
+                </select>
+             </div>
+             {{/each}}
+             <div class="ui-btn" id="submit">提交</div>
+        </script>
+        <script>
+            function Answer(name , value)
+            {
+                this.name = name;
+                this.value = value;
+            }
+
+            $j(document).on("DOMContentLoaded",function(){
+                var msg = '{!msg}';
+                if(msg != null && msg != '')
+                    return;
+                var questionJson = '{!questionJson}';
+                console.log('**************' + questionJson);
+                var questions = JSON.parse(questionJson);
+                var questionTemplate = Handlebars.compile($j("#Question_Template").html());
+                Handlebars.registerHelper("compare" , function(questionValue , qv , option)
+                {
+                    if(questionValue == qv)
+                        return option.fn(this);
+                    else
+                        return option.inverse(this);
+                });
+                var html = questionTemplate(questions);
+                document.querySelector("#page\\:Question_Form").innerHTML += html;
+                $j.mobile.initializePage();
+                $j(".ui-page").css("width" , "90%");
+                $j(".ui-page").css("left" , "5%");
+                $j(".ui-btn").css("border-radius" , "4px");
+                $j(".ui-field-contain").css("border-bottom-style" , "dashed");
+                $j("body").removeClass("ui-state-disabled");
+                $j.mobile.loading("hide");
+                $j("#submit").bind("click" , function(){
+                    $j("body").addClass("ui-state-disabled");
+                    var questionSelect = document.querySelectorAll("select");
+                    var answers = [];
+                    for(var i = 0;i < questionSelect.length;i++)
+                    {
+                        var answer = new Answer(questionSelect[i].getAttribute("name") , questionSelect[i].value);
+                        answers.push(answer);
+                    }
+                    document.querySelector("#page\\:Question_Form\\:Answer").value = JSON.stringify(answers);
+                    FeedBack();
+                });
+            });
+        </script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    </head>
+    <apex:messages style="color:green;font-weight:bold;" />
+    <div data-role="page" id="Question_Container">
+        <div data-role="main">
+            <apex:form id="Question_Form" html-data-role="none">
+                <apex:inputhidden value="{!answerJson}" id="Answer"/>
+                <apex:actionFunction name="FeedBack" action="{!FeedBack}"/>
+            </apex:form>
+        </div>
+    </div>
+</apex:page>

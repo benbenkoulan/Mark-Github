@@ -1,0 +1,40 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" id="page" docType="html-5.0" >
+	<head>
+		<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+		<meta charset="utf-8" />
+		<style>
+			html , body{width: 100%;height: 100%;padding: 0;margin: 0;background-color: #F5F8F8}
+			#logo{text-align:center;position: absolute;top: 40px;width: 100%;z-index: 99999;}
+			#main{width:100%;background-color: #45b796;position: absolute;top: 100px;border-radius: 8px;}
+			#article{width: 90%;padding:0 5%;}
+			#main .word{color: #FFFFFF;line-height: 20px;font-size: 14px;}
+			#main_title{margin-top: 70px;text-align: justify;}
+			#main_article{margin-top:10px;text-align: justify;}
+			#main_goal{margin-top: 10px;text-align: justify;}
+			ul{list-style: none;padding: 0px;margin:0px;}
+			#gold{width: 100%;margin-top:10px;text-align: center;background-color: #45b796;}
+		</style>
+	</head>
+
+	<div id="logo" >
+		<img src="{!URLFOR($Resource.Campaign,'AboutUs/logo.png')}" alt="Celnet" width="120" height="120" />
+	</div>
+	<div id="main">
+		<div id="article">
+			<p id="main_title" class="word">&nbsp;&nbsp;&nbsp;&nbsp;北京雨花石科技有限公司，简称Celnet是一家专注于Salesforce.com实施服务的企业。成功实施过制药、汽车、专业服务、财富管理、分销行业，IT行业的Salesforce.com项目。</p>
+			<p id="main_article" class="word">&nbsp;&nbsp;&nbsp;&nbsp;Celnet成功实现了微信与Salesforce.com的整合，通过微信与Salesforce的整合，可以实现：</p>
+			<ul>
+				<li class="word">&nbsp;&nbsp;&nbsp;&nbsp;1、最终客户可以通过微信下订单、提交服务请求</li>
+			<li class="word">&nbsp;&nbsp;&nbsp;&nbsp;2、合作伙伴可以通过微信进行项目报备、沟通协作</li>
+				<li class="word">&nbsp;&nbsp;&nbsp;&nbsp;3、企业员工也可借助微信进行Salesforce.com的操作，大大提高Salesforce的使用率
+				</li>
+			</ul>
+			<p id="main_goal" class="word">
+			&nbsp;&nbsp;&nbsp;&nbsp;公司的目标是，通过选择成熟的厂商和CRM平台产品，在工作中积累丰富的服务经验，提升服务能力，最终满足客户对企业信息化的期望，实现公司和团队的价值。
+			</p>
+		</div>
+		<div id="gold">
+			<img src="{!URLFOR($Resource.Campaign,'AboutUs/gold.png')}" alt="Gold" width="300" height="98" style="margin-bottom:20px;" />
+		</div>
+	</div>
+</apex:page>

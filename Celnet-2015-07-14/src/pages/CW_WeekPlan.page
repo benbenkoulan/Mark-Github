@@ -1,0 +1,702 @@
+<apex:page docType="html-5.0" applyHTMLTag="false" showHeader="false" sideBar="false" standardStyleSheets="false" controller="CW_WeekPlanController">
+<html>
+<head>
+    <title>周计划 - {!$User.FirstName} {!$User.LastName}</title>
+    
+    <!-- Baidu统计代码开始 -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "//hm.baidu.com/hm.js?8556eb3708f6a51cff7aeb374f5414c2";
+          var s = document.getElementsByTagName("script")[0]; 
+          s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <!-- Baidu统计代码结束 -->
+    
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta http-equiv='cache-control' content='no-cache' />
+    <meta http-equiv='expires' content='0' />
+    <meta http-equiv='pragma' content='no-cache' />
+    <meta content="telephone=no" name="format-detection" />
+    
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    
+    <script>
+        $j = jQuery.noConflict();
+        
+        $j( document ).on( "mobileinit", function() {
+            $j.mobile.autoInitializePage = false;
+        });
+    </script>
+    
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/jquery.mobile.icons.min.css')}" />
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/celnet.min.css')}" />
+    <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+    <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    
+    <script>
+        var jqm_theme = 'b'; // b celnet
+        
+        var week_plans = {};
+        week_plans.lastweek_plan = {"apexType":"c.CW_WeekPlanController.WeekPlanWrapper"};
+        week_plans.currentweek_plan = {"apexType":"c.CW_WeekPlanController.WeekPlanWrapper"};
+        week_plans.nextweek_plan = {"apexType":"c.CW_WeekPlanController.WeekPlanWrapper"};
+        
+        // history management，还未实现
+        window.addEventListener("hashchange", function(){
+            // hashChangeAction(window.location.hash);
+        }, false);
+        
+        document.addEventListener('DOMContentLoaded', function(){
+            var _page_structure = document.getElementById('weekplan-page-structure-template').text;
+            $j('body').append(_page_structure);
+            $j.mobile.initializePage();
+            $j('#weekplan-page').page({theme:jqm_theme});
+            WeekPlan.loadEventAction();
+        }, false);
+        
+        var WeekPlan = (function(){
+            
+            $j = jQuery.noConflict();
+        
+            var invoke = function(action_type, week_id, target_id){
+                
+                // 编辑工作心得 DOM  list -> report
+                if(action_type == 'edit-report'){
+                    _hmt.push(['_trackEvent', '周计划', '编辑工作心得']);//百度统计事件跟踪代码
+                    ActionManager.edit_report(week_id);
+                }
+                
+                // 保存工作心得 DOM, DML
+                if(action_type == 'save-report'){
+                    _hmt.push(['_trackEvent', '周计划', '保存工作心得']);//百度统计事件跟踪代码
+                    ActionManager.save_report(week_id);
+                }
+                
+                // 取消编辑工作心得 和 取消编辑工作目标 DOM 
+                if(action_type == 'cancel-edit'){
+                    ActionManager.cancel_edit(week_id);
+                }
+                
+                // 添加工作目标 DOM
+                if(action_type == 'add-target'){
+                    ActionManager.edit_target(week_id, 'new');
+                }
+                
+                // 编辑工作目标 DOM
+                if(action_type == 'edit-target'){
+                    _hmt.push(['_trackEvent', '周计划', '编辑工作目标']);//百度统计事件跟踪代码
+                    ActionManager.edit_target(week_id, target_id);
+                }
+                
+                // 保存工作目标 DOM, DML
+                if(action_type == 'save-target'){
+                    _hmt.push(['_trackEvent', '周计划', '保存工作目标']);//百度统计事件跟踪代码
+                    ActionManager.save_target(week_id, target_id);
+                }
+                
+                // 删除工作目标 DOM, DML
+                if(action_type == 'delete-target'){
+                    _hmt.push(['_trackEvent', '周计划', '删除工作目标']);//百度统计事件跟踪代码
+                    ActionManager.delete_target(week_id, target_id);
+                }
+            }
+        
+            var ActionManager = {
+            
+                changeHashUrl: function(){},
+
+                hashChangeAction: function(hash_url){
+                    var _hash = hash_url;
+                    console.log(hash_url);
+                    _hash_list = _hash.split('separator');
+                    console.log(_hash_list);
+                    var pageType = _hash_list[0];
+                    var week_id = _hash_list[1];
+                    var target_id = _hash_list[2];
+                    
+                    if(pageType == '#targetlist'){
+                        displayTargetList(week_id);
+                    }
+                },
+
+                initiateWeekPlans: function(){
+                    DOMManager.showAjaxLoading('加载中');
+                    
+                    CW_WeekPlanController.initiateWeekPlans(function(result, event) {
+                        if(event.status) {
+                            console.log(result);
+                            for(var i = 0; i < result.length;i++){
+                                week_plans.lastweek_plan = result[0];
+                                week_plans.currentweek_plan = result[1];
+                                week_plans.nextweek_plan = result[2];
+                            }
+                            
+                            DOMManager.hideAjaxLoading();
+                            
+                            DOMManager.displayTargetList('currentweek');
+                            DOMManager.displayTargetList('lastweek');
+                            DOMManager.displayTargetList('nextweek');
+                            //window.location.hash = 'targetlistseparatorcurrentweekseparator' + 'new';
+                            //hashChangeAction(window.location.hash);
+                        } else {
+                            DOMManager.hideAjaxLoading();
+                            alert("网络不太好，再试试看");
+                        }
+                    });
+                },
+                
+                // 编辑工作心得
+                edit_report: function(week_id){
+                    DOMManager.displayReportEditor(week_id);
+                    DOMManager.showActiveTabStyle(week_id);
+                }, 
+                
+                // 保存工作心得
+                save_report: function(week_id){
+                    var save_week_plan = {"apexType":"c.CW_WeekPlanController.WeekPlanWrapper"};
+                    save_week_plan.id = week_plans[week_id + '_plan'].id;
+                    save_week_plan.issues = document.getElementById(week_id + '-issues').value;
+                    save_week_plan.thoughts = document.getElementById(week_id + '-thoughts').value;
+                    
+                    DOMManager.showAjaxLoading('保存中');
+                    
+                    CW_WeekPlanController.saveWeekPlan(week_id, save_week_plan, function(result, event) {
+                        if(event.status) {
+                            // alert(result);
+                            DOMManager.hideAjaxLoading();
+                            
+                            week_plans[week_id + '_plan'].thoughts = save_week_plan.thoughts;
+                            week_plans[week_id + '_plan'].issues = save_week_plan.issues;
+                            
+                            DOMManager.displayTargetList(week_id);
+                            DOMManager.showActiveTabStyle(week_id);
+                        } else {
+                            DOMManager.hideAjaxLoading();
+                            alert("网络不太好，再试试看");
+                        }
+                    });
+                },
+                
+                // 编辑工作目标
+                edit_target: function(week_id, target_id){
+                    DOMManager.displayTargetEditor(week_id, target_id);
+                    DOMManager.showActiveTabStyle(week_id);
+                },
+                
+                // 取消编辑工作心得 和 取消编辑工作目标
+                cancel_edit: function(week_id){
+                    DOMManager.displayTargetList(week_id);
+                    DOMManager.showActiveTabStyle(week_id);
+                },
+                
+                // 保存工作目标
+                save_target: function(week_id, target_id){
+                    if(!ActionManager.validateTargetValues(week_id, target_id)){
+                        return;
+                    }
+                    
+                    var save_target = {"apexType":"c.CW_WeekPlanController.WeekTargetWrapper"};
+                    
+                    save_target.subject = document.getElementById(week_id + '-target-subject').value;
+                    save_target.endtime = document.getElementById(week_id + '-endtime').value;
+                    save_target.accomplishment_rate = document.getElementById(week_id + '-accomplishment-rate').value;
+                    
+                    save_target.description = document.getElementById(week_id + '-description').value;
+                    save_target.description = save_target.description == undefined?'':save_target.description;
+                    
+                    var status_open = document.getElementById(week_id + '-status-open').checked;
+                    var status_complete = document.getElementById(week_id + '-status-complete').checked;
+                    
+                    save_target.status = '';
+                    if(status_open){
+                        save_target.status = '开启';
+                    } else if(status_complete){
+                        save_target.status = '完成';
+                    }
+                    
+                    save_target.id = target_id == 'new'?'new':week_plans[week_id + '_plan'].targets[target_id].id;
+                    var week_plan_id = week_plans[week_id + '_plan'].id == 'new'?week_id:week_plans[week_id + '_plan'].id;
+                    
+                    DOMManager.showAjaxLoading('保存中');
+                    
+                    CW_WeekPlanController.saveWeekTarget(week_plan_id, save_target, function(result, event) {
+                        if(event.status) {
+                            // alert(result);
+                            DOMManager.hideAjaxLoading();
+                            
+                            if(target_id == 'new'){
+                                week_plans[week_id + '_plan'].targets.push(save_target);
+                            } else {
+                                week_plans[week_id + '_plan'].targets[target_id] = save_target;
+                            }
+                            
+                            var id_array = result.split('-');
+                            
+                            if(target_id == 'new'){
+                                target_id = week_plans[week_id + '_plan'].targets.length - 1;
+                            }
+                            
+                            week_plans[week_id + '_plan'].targets[target_id].id = id_array[1];
+                            week_plans[week_id + '_plan'].id = id_array[0];
+                            
+                            DOMManager.displayTargetList(week_id);
+                            DOMManager.showActiveTabStyle(week_id);
+                        } else {
+                            DOMManager.hideAjaxLoading();
+                            alert("网络不太好，再试试看");
+                        }
+                    });
+                },
+                
+                // 删除工作目标
+                delete_target: function(week_id, target_id){
+                    if(confirm("真的要删掉吗？")){
+                        var delete_target_id = week_plans[week_id + '_plan'].targets[target_id].id;
+                        
+                        DOMManager.showAjaxLoading('删除中');
+                        
+                        CW_WeekPlanController.deleteWeekTarget(delete_target_id, function(result, event) {
+                            if(event.status) {
+                                // alert(result);
+                                
+                                DOMManager.hideAjaxLoading();
+                                
+                                // remove js variable
+                                week_plans[week_id + '_plan'].targets.splice(target_id,1);
+                                
+                                DOMManager.displayTargetList(week_id);
+                                DOMManager.showActiveTabStyle(week_id);
+                            } else {
+                                DOMManager.hideAjaxLoading();
+                                alert("网络不太好，再试试看");
+                            }
+                        });
+                        
+                    }
+                },
+                
+                // 验证工作目标的值
+                validateTargetValues: function(week_id, target_id){
+                    var _subject = document.getElementById(week_id + '-target-subject');
+                    
+                    if(_subject.value == undefined || _subject.value.trim() == ''){
+                        // 验证后清空空字符串
+                        _subject.value = '';
+                        
+                        DOMManager.showSubjectErrorInfo(week_id, target_id);
+                        
+                        DOMManager.showActiveTabStyle(week_id);
+                        return false;
+                    }
+                    
+                    return true;
+                }
+                
+                
+            }
+            
+            var DOMManager = {
+                initiateStyles: function(){
+                    document.getElementById('tabs').style.paddingLeft = '0px';
+                    document.getElementById('tabs').style.paddingRight = '0px';
+                    
+                    document.getElementById('lastweek-anchor').style.fontSize = '1em';
+                    document.getElementById('currentweek-anchor').style.fontSize = '1em';
+                    document.getElementById('nextweek-anchor').style.fontSize = '1em';
+                    
+                    var week_descriptions = document.querySelectorAll('.week-description');
+                    for(var i = 0; i < week_descriptions.length; i++){
+                        week_descriptions[i].style.textAlign = 'center';
+                        week_descriptions[i].style.marginBottom = '12px';
+                    }
+                    
+                    var control_buttons = document.querySelectorAll('.control-buttons');
+                    for(var i = 0; i < control_buttons.length; i++){
+                        control_buttons[i].style.textAlign = 'center';
+                        control_buttons[i].style.marginTop = '12px';
+                    }
+                },
+                
+                displayWeekDescription: function(){
+                    var _week_description = document.getElementById('week-description-template').text;
+                    var nextweek_description = _week_description.replace('{{week-description}}','{!nextWeekRangeDescription}');
+                    var currentweek_description = _week_description.replace('{{week-description}}','{!currentWeekRangeDescription}');
+                    var lastweek_description = _week_description.replace('{{week-description}}','{!lastWeekRangeDescription}');
+                    
+                    document.querySelector('#' + 'nextweek' + ' div.week-description').innerHTML = nextweek_description;
+                    document.querySelector('#' + 'currentweek' + ' div.week-description').innerHTML = currentweek_description;
+                    document.querySelector('#' + 'lastweek' + ' div.week-description').innerHTML = lastweek_description;
+                },
+                
+                showActiveTabStyle: function(week_id){
+                    document.getElementById(week_id + '-anchor').classList.add('ui-btn-active');
+                },
+                
+                showSubjectErrorInfo: function(week_id, target_id){
+                    var _subject = document.getElementById(week_id + '-target-subject');
+                    _subject.style.backgroundColor = 'mistyrose';
+                        
+                    // 没有错误信息时，添加错误信息
+                    if(document.getElementById(week_id + '-subject-notification') == undefined){
+                        
+                        var _errorinfo = document.getElementById('field-error-info-template').text;
+                        _errorinfo = _errorinfo.replace('{{error-id}}', week_id + '-subject-notification');
+                        _errorinfo = _errorinfo.replace('{{error-text}}', '必填');
+
+                        document.getElementById(week_id + '-subject-label').innerHTML += _errorinfo;
+                    }
+                    
+                    _subject.focus();
+                    navigator.vibrate(200);
+                    window.scroll(0,0);
+                },
+                
+                hideSubjectErrorInfo: function(week_id, target_id){
+                    var _subject = document.getElementById(week_id + '-target-subject');
+                    _subject.style.backgroundColor = 'white';
+                        
+                    if(document.getElementById(week_id + '-subject-notification') != undefined){
+                        $j('#' + week_id + '-subject-notification').remove();
+                    }
+                },
+                
+                // 显示 工作目标列表 页面
+                displayTargetList: function(week_id){
+                    var _list_template = document.getElementById('weekplan-list-template').text;
+
+                    var target_array = week_plans[week_id + '_plan'].targets == undefined?[]:week_plans[week_id + '_plan'].targets;
+
+                    var _list_items = '';
+
+
+                    for(var i = 0;i < target_array.length;i++){
+
+                        var _list_item = document.getElementById('weekplan-list-item-template').text;
+                        _list_item = _list_item.replace('{{href}}', 'javascript:WeekPlan.invokeAction(\'edit-target\', \'' + week_id + '\',' + i + ');');
+                        _list_item = _list_item.replace('{{subject}}', target_array[i].subject);
+                        _list_item = _list_item.replace('{{endtime}}', target_array[i].endtime);
+                        _list_item = _list_item.replace('{{accomplishment-rate}}', target_array[i].accomplishment_rate);
+                        _list_item = _list_item.replace('{{status}}', target_array[i].status);
+                        _list_item = _list_item.replace('{{description}}', target_array[i].description);
+
+                        _list_items += _list_item;
+                    }
+                    
+                    _list_template = _list_template.replace('{{listitems}}', _list_items);
+
+                    document.querySelector('#' + week_id + ' div.content-container').innerHTML = _list_template;
+
+                    if(target_array.length <= 0){
+                        var _notarget_notification = document.getElementById('weekplan-list-no-target-notification-template').text;
+                        document.querySelector('#' + week_id + ' div.content-container').innerHTML = _notarget_notification;
+                        
+                        document.querySelector('#' + week_id + ' div.content-container img').src = '{!$Resource.LineCharacter1}';
+                        //document.querySelector('#' + week_id + ' div.content-container img').style.padding = '40px 0';
+                        /*
+                        document.querySelector('#' + week_id + ' div.content-container img').addEventListener('click',function(){
+                            if(this.src == window.location.protocol + '//' + window.location.host + '{!$Resource.CelnetLogo}'){
+                                this.src = '{!$Resource.LineCharacter1}';
+                                this.style.padding = '0';
+                            } else {
+                                this.src = '{!$Resource.CelnetLogo}';
+                                this.style.padding = '40px 0';
+                            }
+                        });
+                        */
+                    }
+                    
+                    var _add_target = DOMBuilder.createAnchorButton(week_id + '-add', '添加工作目标', '', 'add-target', week_id, 'new');
+                    var _edit_report = DOMBuilder.createAnchorButton(week_id + '-thoughts-issues', '工作心得', '', 'edit-report', week_id, '');
+                    
+                    document.querySelector('#' + week_id + ' div.control-buttons').innerHTML = _add_target + _edit_report;
+                    $j('ul[data-role="listview"]').listview();
+                    $j('input[type="button"]').button();
+                },
+                
+                // 显示 编辑工作心得 页面
+                displayReportEditor: function(week_id){
+                    var editing_report = week_plans[week_id + '_plan'];
+                    
+                    var week_plans_report_editor = document.getElementById('weekplan-report-editor-template').text;
+                    
+                    week_plans_report_editor = week_plans_report_editor.replace(/{{week-id}}/g, week_id);
+                    week_plans_report_editor = week_plans_report_editor.replace('{{report-thoughts}}', editing_report.thoughts);
+                    week_plans_report_editor = week_plans_report_editor.replace('{{report-issues}}', editing_report.issues);
+                    
+                    document.querySelector('#' + week_id + ' div.content-container').innerHTML = week_plans_report_editor;
+                    
+                    var save_button = DOMBuilder.createAnchorButton(week_id + '-save', '保存', '', 'save-report', week_id, '');
+                    var cancel_button = DOMBuilder.createAnchorButton(week_id + '-cancel', '取消', '', 'cancel-edit', week_id, '');
+                    
+                    document.querySelector('#' + week_id + ' div.control-buttons').innerHTML = (save_button + cancel_button);
+                    $j('textarea').textinput();
+                    $j('input[type="button"]').button();
+                },
+                
+                // 显示 编辑工作目标 页面
+                displayTargetEditor: function(week_id, target_id){
+                    // 准备数据
+                    var target_array = week_plans[week_id + '_plan'].targets;
+                    
+                    var edit_subject = '';
+                    var edit_endtime = '';
+                    var edit_accomplishment_rate = 0;
+                    var edit_state_notstart = 'checked="true"';//true;
+                    var edit_state_open = '';//false;
+                    var edit_state_complete = '';//false;
+                    var edit_description = '';
+                    
+                    if(target_id != 'new'){
+                        edit_subject = target_array[target_id].subject;
+                        edit_endtime = target_array[target_id].endtime;
+                        edit_accomplishment_rate = target_array[target_id].accomplishment_rate;
+                        
+                        if(target_array[target_id].status == '完成'){
+                            edit_state_complete = 'checked="true"';//true;
+                        } else if(target_array[target_id].status == '开启'){
+                            edit_state_open = 'checked="true"';//true;
+                        }
+                        
+                        edit_description = target_array[target_id].description;
+                        console.log(target_array[target_id]);
+                    }
+                    
+                    var detail_editor = document.getElementById('weekplan-detail-editor-template').text;
+                    detail_editor = detail_editor.replace(/{{week-id}}/g, week_id);
+                    detail_editor = detail_editor.replace(/{{target-id}}/g, target_id);
+                    detail_editor = detail_editor.replace('{{description}}', edit_description);
+                    detail_editor = detail_editor.replace('{{subject}}', edit_subject);
+                    detail_editor = detail_editor.replace('{{status-notstart}}', edit_state_notstart);
+                    detail_editor = detail_editor.replace('{{status-open}}', edit_state_open);
+                    detail_editor = detail_editor.replace('{{status-complete}}', edit_state_complete);
+                    detail_editor = detail_editor.replace('{{accomplishment-rate}}', edit_accomplishment_rate);
+                    detail_editor = detail_editor.replace('{{endtime}}', edit_endtime);
+
+                    document.querySelector('#' + week_id + ' div.content-container').innerHTML = detail_editor;
+                    
+                    var save_button = DOMBuilder.createAnchorButton( week_id + '-save', '保存', '', 'save-target', week_id, target_id);
+                    var cancel_button = DOMBuilder.createAnchorButton( week_id + '-cancel', '取消', '', 'cancel-edit', week_id, '');
+                    var delete_button = DOMBuilder.createAnchorButton( week_id + '-delete', '删除', 'delete', 'delete-target', week_id, target_id);
+                    
+                    var buttons = save_button + cancel_button;
+
+                    if(target_id != 'new'){
+                        buttons += delete_button;
+                    }
+
+                    document.querySelector('#' + week_id + ' div.control-buttons').innerHTML = buttons;
+                    
+                    document.querySelector('#' + week_id + '-target-subject').addEventListener('keydown', function(){
+                        DOMManager.hideSubjectErrorInfo( week_id , target_id );
+                    }, false);
+                    
+                    $j('input[type="text"]').textinput();
+                    $j('input[type="date"]').textinput();
+                    $j('textarea').textinput();
+                    $j('input[data-type="range"]').slider();
+                    $j('input[type="number"]').textinput();
+                    $j('input[type="radio"]').checkboxradio();
+                    $j('input[type="button"]').button();
+                    $j('#' + week_id + '-delete').button({theme:'c'});
+                    
+                    var window_width = (window.innerWidth > 0)?window.innerWidth:window.screen.width;
+                    if(window_width < 354){ // 315 - 354 pixels width apply
+                        var radio_labels = document.getElementsByClassName('weekplan-radio-label');
+                        
+                        for(var i = 0; i < radio_labels.length; i++){
+                            radio_labels[i].style.paddingLeft = '2.2em';
+                            radio_labels[i].style.paddingRight = '0.5em';
+                        }
+                    }
+                },
+                
+                showAjaxLoading: function(loading_text){
+                    document.getElementById('weekplan-page').classList.add('ui-state-disabled');
+                    
+                    $j.mobile.loading( 'show', {
+                        text: loading_text,
+                        textVisible: true,
+                        theme: 'a',
+                        textonly: false,
+                        html: '<div style="text-align:center;font-size:1em;font-weight:bold;" ><img src="{!$Resource.CelnetLogo}" width="100px"/><br/><span>' + loading_text + '</span></div>'
+                    });
+                },
+                
+                hideAjaxLoading: function(){
+                    $j.mobile.loading( 'hide');
+                    document.getElementById('weekplan-page').classList.remove('ui-state-disabled');
+                }
+            }
+            
+            var DOMBuilder = {
+                // 创建一个 anchor button
+                createAnchorButton: function(a_id, a_text, a_role, action_type, week_id, target_id){
+                    
+                    var a_href = 'javascript:WeekPlan.invokeAction(\'' + action_type + '\', \'' + week_id + '\',\'' + target_id + '\');';
+
+                    var _a_template = document.getElementById('anchor-button-template').text;
+                    _a_template = _a_template.replace('{{id}}', a_id);
+                    _a_template = _a_template.replace('{{href}}', a_href);
+                    _a_template = _a_template.replace('{{anchor-text}}', a_text);
+
+                    return _a_template;
+                }
+            }
+            
+            return {
+                invokeAction: invoke,
+                loadEventAction: function(){
+                    $j( "#tabs" ).tabs("option", "active", 1);
+                    $j( "#tabs" ).tabs("option", "show", { duration: 300 });
+                    
+                    DOMManager.showActiveTabStyle('currentweek')
+                    DOMManager.initiateStyles();
+                    DOMManager.displayWeekDescription();
+                    ActionManager.initiateWeekPlans();
+                }
+            }
+        })();
+        
+    </script>
+    
+    <!-- Page Templates -->
+    <!-- WeekPlan Page Structure Template -->
+    <script type="text/template" id="weekplan-page-structure-template" >
+        <div data-role="page" id="weekplan-page">
+          <div data-role="tabs" id="tabs" >
+              <div id="navbar" data-role="navbar">
+                <ul>
+                  <li ><a id="lastweek-anchor" href="#lastweek" class="week-anchor " >上周</a></li>
+                  <li ><a id="currentweek-anchor" href="#currentweek" class="week-anchor " >本周</a></li>
+                  <li ><a id="nextweek-anchor" href="#nextweek" class="week-anchor " >下周</a></li>
+                </ul>
+              </div>
+              <div id="lastweek" class="ui-content">
+                  <div class="week-description" ></div>
+                  <div class="content-container" ></div>
+                  <div class="control-buttons" ></div>
+              </div>
+              <div id="currentweek" class="ui-content">
+                  <div class="week-description" ></div>
+                  <div class="content-container" ></div>
+                  <div class="control-buttons" ></div>
+              </div>
+              <div id="nextweek" class="ui-content">
+                  <div class="week-description" ></div>
+                  <div class="content-container" ></div>
+                  <div class="control-buttons" ></div>
+              </div>
+          </div>
+        </div>
+    </script>
+    
+    <!-- Week Description Template -->
+    <script type="text/template" id="week-description-template">
+        <span>{{week-description}}</span>
+    </script>
+
+    <!-- WeekPlan List Template -->
+    <script type="text/template" id="weekplan-list-template">
+        <div>
+            <ul id="lastweek-target_list" data-role="listview" data-inset="true" >
+                {{listitems}}
+            </ul>
+        </div>
+    </script>
+
+    <!-- WeekPlan List Item Template -->
+    <script type="text/template" id="weekplan-list-item-template">
+        <li>
+            <a href="{{href}}" >
+            <div>
+                <h2>{{subject}}</h2>
+                <p style="font-size: 1em;">截至：{{endtime}}｜完成率：{{accomplishment-rate}}%｜状态：{{status}}</p>
+                <p style="font-size: 1em;">描述：{{description}}</p>
+            </div>
+            </a>
+        </li>
+    </script>
+
+    <!-- WeekPlan List No Target Notification Template -->
+    <script type="text/template" id="weekplan-list-no-target-notification-template">
+        <div style="text-align:center;" >
+            <img src="" alt="～还没工作目标哟～" />
+            <div style="color:grey;margin:10px;">～还没工作目标哟～</div>
+        </div>
+    </script>
+    
+    <!-- WeekPlan Detail Editor Template -->
+    <script type="text/template" id="weekplan-detail-editor-template">
+        <div id="{{week-id}}-target-editor" class="ui-field-contain" style="border-top-color: rgba(0, 0, 0, 0.14902); border-top-width: 1px; border-top-style: solid; border-bottom-color: rgba(0, 0, 0, 0.14902); border-bottom-width: 1px; border-bottom-style: solid;">
+        
+        <div style="margin: 10px;">
+            <label id="{{week-id}}-subject-label" for="{{week-id}}-target-subject"><span style="color: rgb(220, 20, 60);">*</span>目标主题:</label>
+            <input id="{{week-id}}-target-subject" name="{{week-id}}-target-subject" type="text" value="{{subject}}" >
+        </div>
+        
+        <div style="margin: 10px;">
+            <label for="{{week-id}}-endtime"><span style="color: rgb(249, 249, 249);">*</span>截至时间:</label>
+            <input id="{{week-id}}-endtime" name="{{week-id}}-endtime" type="date" value="{{endtime}}" />
+        </div>
+
+        <div style="margin: 10px;">
+            <fieldset data-role="controlgroup" class="ui-grid-b">
+                <legend><span style="color: rgb(249, 249, 249);">*</span>状态:</legend>
+                <div class="ui-block-a">
+                    <label for="{{week-id}}-status-notstart" class="weekplan-radio-label">无</label>
+                    <input type="radio" name="{{week-id}}-status" id="{{week-id}}-status-notstart" value="无" {{status-notstart}}>
+                </div>
+                <div class="ui-block-b">
+                    <label for="{{week-id}}-status-open" class="weekplan-radio-label">开启</label>
+                    <input type="radio" name="{{week-id}}-status" id="{{week-id}}-status-open" value="开启" {{status-open}}>
+                </div>
+                <div class="ui-block-c">
+                    <label for="{{week-id}}-status-complete" class="weekplan-radio-label">完成</label>
+                    <input type="radio" name="{{week-id}}-status" id="{{week-id}}-status-complete" value="完成" {{status-complete}}>
+                </div>
+            </fieldset>
+        </div>
+
+        <div style="margin: 10px;">
+            <label for="{{week-id}}-accomplishment-rate" id="{{week-id}}-accomplishment-rate-label"><span style="color: rgb(249, 249, 249);">*</span>完成率:</label>
+            <input type="number" value="{{accomplishment-rate}}" data-type="range" min="0" max="100" step="5" name="{{week-id}}-accomplishment-rate" id="{{week-id}}-accomplishment-rate" data-highlight="true" >
+        </div>
+
+        <div style="margin: 10px;">
+            <label for="{{week-id}}-description"><span style="color: rgb(249, 249, 249);">*</span>描述:</label>
+            <textarea id="{{week-id}}-description" style="resize: none;">{{description}}</textarea>
+        </div>
+        </div>
+    </script>
+    
+    <!-- WeekPlan Report Editor Template -->
+    <script type="text/template" id="weekplan-report-editor-template">
+        <div id="{{week-id}}-plan-editor" class="ui-field-contain" style="border-top-color: rgba(0, 0, 0, 0.14902); border-top-width: 1px; border-top-style: solid; border-bottom-color: rgba(0, 0, 0, 0.14902); border-bottom-width: 1px; border-bottom-style: solid;">
+            <div style="margin: 10px;">
+                <label for="{{week-id}}-thoughts"><span style="color: rgb(249, 249, 249);">*</span>工作心得:</label>
+                <textarea id="{{week-id}}-thoughts" rows="5" style="resize: none;">{{report-thoughts}}</textarea>
+            </div>
+            <div style="margin: 10px;">
+                <label for="{{week-id}}-issues"><span style="color: rgb(249, 249, 249);">*</span>遇到的障碍:</label>
+                <textarea id="{{week-id}}-issues" rows="5" style="resize: none;">{{report-issues}}</textarea>
+            </div>
+        </div>
+    </script>
+
+    <!-- Anchor Button Template-->
+    <script type="text/template" id="anchor-button-template">
+        <input type="button" data-inline="true" id="{{id}}" onclick="{{href}}" style="{{otherstyles}}" value="{{anchor-text}}" />
+    </script>
+
+    <!-- Field Error Info Template -->
+    <script type="text/template" id="field-error-info-template">
+        <span id="{{error-id}}" style="color:crimson;margin:10px;">{{error-text}}</span>
+    </script>
+</head>
+<body>
+</body>
+</html>
+</apex:page>

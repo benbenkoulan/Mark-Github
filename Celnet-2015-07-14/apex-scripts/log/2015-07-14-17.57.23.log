@@ -1,0 +1,50 @@
+Execute Anonymous
+
+================================
+
+Http h = new Http();
+httprequest req = new httprequest();
+req.setMethod('POST');
+req.setTimeout(60000);
+req.setbody('{"media_id":"xOgjvCOeXbzK5IF_44wg_zOE81n85gPCPzC7n-pmCbE"}');
+req.setEndPoint('https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=jMWsPaDiuto8Yyz8_LO2R8Mfi_CYqHHHf1EyW829S1lNkqoFhoSotQa567nL9JWK0Ta7lF3bZa4QYbTBJVUwBbSY6B0XQkWYEMWcLWTX_Nw');
+httpresponse res = h.send(req);
+CampaignHotActivityHandler.MediaSource ms = (CampaignHotActivityHandler.MediaSource)JSON.deserialize(res.getbody() , CampaignHotActivityHandler.MediaSource.class);
+system.debug('*******************' + ms);
+
+================================
+
+31.0 APEX_CODE,DEBUG;APEX_PROFILING,DEBUG;CALLOUT,INFO;DB,INFO;VALIDATION,INFO;WORKFLOW,INFO
+Execute Anonymous: Http h = new Http();
+Execute Anonymous: httprequest req = new httprequest();
+Execute Anonymous: req.setMethod('POST');
+Execute Anonymous: req.setTimeout(60000);
+Execute Anonymous: req.setbody('{"media_id":"xOgjvCOeXbzK5IF_44wg_zOE81n85gPCPzC7n-pmCbE"}');
+Execute Anonymous: req.setEndPoint('https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=jMWsPaDiuto8Yyz8_LO2R8Mfi_CYqHHHf1EyW829S1lNkqoFhoSotQa567nL9JWK0Ta7lF3bZa4QYbTBJVUwBbSY6B0XQkWYEMWcLWTX_Nw');
+Execute Anonymous: httpresponse res = h.send(req);
+Execute Anonymous: CampaignHotActivityHandler.MediaSource ms = (CampaignHotActivityHandler.MediaSource)JSON.deserialize(res.getbody() , CampaignHotActivityHandler.MediaSource.class);
+Execute Anonymous: system.debug('*******************' + ms);
+17:57:38.081 (81674116)|EXECUTION_STARTED
+17:57:38.081 (81685222)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+17:57:38.084 (84140070)|CALLOUT_REQUEST|[7]|System.HttpRequest[Endpoint=https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=jMWsPaDiuto8Yyz8_LO2R8Mfi_CYqHHHf1EyW829S1lNkqoFhoSotQa567nL9JWK0Ta7lF3bZa4QYbTBJVUwBbSY6B0XQkWYEMWcLWTX_Nw, Method=POST]
+17:57:38.469 (469913551)|CALLOUT_RESPONSE|[7]|System.HttpResponse[Status=OK, StatusCode=200]
+17:57:38.472 (472190742)|USER_DEBUG|[9]|DEBUG|*******************MediaSource:[news_item=(MediaItem:[author=, content=<p style="white-space: normal;">尊敬的客户：<br  /></p><p style="white-space: normal;"><br style="margin: 0px; padding: 0px; max-width: 100%; box-sizing: border-box !important; word-wrap: break-word !important;"  /></p><p style="white-space: normal;">您是否有考<span style="margin: 0px; padding: 0px; max-width: 100%; font-family: 宋体; box-sizing: border-box !important; word-wrap: break-word !important;">虑</span>更好的方法来管理和<span style="margin: 0px; padding: 0px; max-width: 100%; font-family: 宋体; box-sizing: border-box !important; word-wrap: break-word !important;">联</span>系客<span style="margin: 0px; padding: 0px; max-width: 100%; font-family: 宋体; box-sizing: border-box !important; word-wrap: break-word !important;">户</span>和合作伙伴呢？</p><p style="white-space: normal;"><br  /></p><p style="white-space: normal;">仅用3小时的交谈，将能让您了解这一小步将如何帮助您的业务快速实现增长。</p><p style="white-space: normal;"><br style="margin: 0px; padding: 0px; max-width: 100%; box-sizing: border-box !important; word-wrap: break-word !important;"  /></p><p style="white-space: normal;"><img data-s="300,640" data-type="png" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUbUNsZJZoXvnFvYfAzgPdsQVKDqZHmuuyg4jWAsjFlPhgRAJbHZvw6ibceVX75tMBBahfSQD9ibSAeg/0?wx_fmt=png" data-ratio="0.92" data-w="25" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUbUNsZJZoXvnFvYfAzgPdsQVKDqZHmuuyg4jWAsjFlPhgRAJbHZvw6ibceVX75tMBBahfSQD9ibSAeg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5" style="margin: 0px; padding: 0px; box-sizing: border-box !important; word-wrap: break-word !important; width: auto !important; visibility: visible !important;"  /> 缩短销售时间，快速、高效反映客户需求</p><p style="white-space: normal;"><img data-s="300,640" data-type="png" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUbUNsZJZoXvnFvYfAzgPdsQVKDqZHmuuyg4jWAsjFlPhgRAJbHZvw6ibceVX75tMBBahfSQD9ibSAeg/0?wx_fmt=png" data-ratio="0.92" data-w="25" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUbUNsZJZoXvnFvYfAzgPdsQVKDqZHmuuyg4jWAsjFlPhgRAJbHZvw6ibceVX75tMBBahfSQD9ibSAeg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5" style="margin: 0px; padding: 0px; box-sizing: border-box !important; word-wrap: break-word !important; width: auto !important; visibility: visible !important;"  /> 实时掌控营销及销售数据、轻松转向精细化管理</p><p style="white-space: normal;"><img data-s="300,640" data-type="png" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUbUNsZJZoXvnFvYfAzgPdsQVKDqZHmuuyg4jWAsjFlPhgRAJbHZvw6ibceVX75tMBBahfSQD9ibSAeg/0?wx_fmt=png" data-ratio="0.92" data-w="25" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUbUNsZJZoXvnFvYfAzgPdsQVKDqZHmuuyg4jWAsjFlPhgRAJbHZvw6ibceVX75tMBBahfSQD9ibSAeg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5" style="margin: 0px; padding: 0px; box-sizing: border-box !important; word-wrap: break-word !important; width: auto !important; visibility: visible !important;"  /> 创建与客户、合作伙伴及员工间有效互动</p><p style="white-space: normal;"><img data-s="300,640" data-type="png" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUbUNsZJZoXvnFvYfAzgPdsQVKDqZHmuuyg4jWAsjFlPhgRAJbHZvw6ibceVX75tMBBahfSQD9ibSAeg/0?wx_fmt=png" data-ratio="0.92" data-w="25" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUbUNsZJZoXvnFvYfAzgPdsQVKDqZHmuuyg4jWAsjFlPhgRAJbHZvw6ibceVX75tMBBahfSQD9ibSAeg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5" style="margin: 0px; padding: 0px; box-sizing: border-box !important; word-wrap: break-word !important; width: auto !important; visibility: visible !important;"  /> 借助科学销售方法论，有效避免业务体系断层、客户流失</p><p style="white-space: normal;"><img data-s="300,640" data-type="png" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUbUNsZJZoXvnFvYfAzgPdsQVKDqZHmuuyg4jWAsjFlPhgRAJbHZvw6ibceVX75tMBBahfSQD9ibSAeg/0?wx_fmt=png" data-ratio="0.92" data-w="25" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUbUNsZJZoXvnFvYfAzgPdsQVKDqZHmuuyg4jWAsjFlPhgRAJbHZvw6ibceVX75tMBBahfSQD9ibSAeg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5" style="margin: 0px; padding: 0px; box-sizing: border-box !important; word-wrap: break-word !important; width: auto !important; visibility: visible !important;"  /> 创新社交化CRM,  把客户品牌传递给最有潜质的潜在客户</p><p style="white-space: normal;"><br style="margin: 0px; padding: 0px; max-width: 100%; box-sizing: border-box !important; word-wrap: break-word !important;"  /></p><p style="white-space: normal;">参与对象：</p><p style="white-space: normal;">各行业的管理者、销售/营销/业务开发总监、经理、主管</p><p style="white-space: normal;"><em style="margin: 0px; padding: 0px; max-width: 100%; box-sizing: border-box !important; word-wrap: break-word !important;"><span style="margin: 0px; padding: 0px; font-style: normal; max-width: 100%; box-sizing: border-box !important; word-wrap: break-word !important;"><strong style="margin: 0px; padding: 0px; max-width: 100%; box-sizing: border-box !important; word-wrap: break-word !important;"><span style="margin: 0px; padding: 0px; max-width: 100%; font-family: 宋体; color: red; box-sizing: border-box !important; word-wrap: break-word !important;">请点击页面下方“阅读原文”报名，立即获取入场券！</span></strong></span></em></p><p style="white-space: normal;"><br  /></p><p style="white-space: normal;">活动时间：2015年7月22日</p><p style="white-space: normal;">活动地点：北京市朝外大街甲6号 万通中心D座27层<br  /></p><p style="white-space: normal;"><br  /></p><p style="white-space: normal;">会议议程：</p><p style="white-space: normal;">1:30 - 2:00 嘉宾签到</p><p style="white-space: normal;">2:00 - 2:45 主题演讲1：创新的生力军</p><p style="white-space: normal;">云计算 + Salesforce1平台介绍及客户案例分享</p><p style="white-space: normal;">2:45 - 3:00 茶歇</p><p style="white-space: normal;">3:00 - 4:00 主题演讲2: 微信+Salesforce, 构建企业与客户、 合作伙伴、员工间的沟通互动</p><p style="white-space: normal;">4:10 - 4:30 互动体验</p><p style="white-space: normal;">4:30 - 5:00 Q&amp;A</p><p style="white-space: normal;"><br  /></p><p style="white-space: normal;">Celnet雨花石科技是Salesforce授权的中国区金牌合作伙伴，专注于面向企业客户提供信息化软件研发、咨询和实施服务，依托全球领先CRM，以Salesforce.com平台的销售与服务作为核心业务，在CRM软件服务领域开展理念宣传和市场耕耘，并取得显著成效。Celnet在Salesforce 合作伙伴体系中的特质是，在坚实的企业信息化能力基础之上，还具有强大的创新性——既通过融入创新的功能，产品和理念为客户带来更大的价值。</p><p style="white-space: normal;"><br  /></p><p style="white-space: normal;">Salesforce是CRM领域以及云计算领域的全球领导者，在业界拥有无可比拟的客户成功率。从世界500强到中小型企业，目前已经有超过100,000家公司使用Salesforce的强大功能来分享客户信息，管理和开发具有更高收益的客户关系。</p><p><img data-s="300,640" data-type="png" data-src="http://mmbiz.qpic.cn/mmbiz/n64wtjBZQUZll55icF4xUvaxZZF9tOkibK4g58bAwSqO4Be9QAAKBrlK3LoDlatIYWIibpUkFL4TenS0gff1rBI8w/0?wx_fmt=png" data-ratio="0.5315487571701721" data-w=""  /><br  /></p>, content_source_url=https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd5b3bd16e3c0665d&redirect_uri=http://celnetwelink.force.com/Wechat/CampaignRegister&response_type=code&scope=snsapi_base&state=70190000000XAP9#wechat_redirect, digest=您是否有考虑更好的方法来管理和联系客户和合作伙伴呢？仅用3小时的交谈，将能让您了解这一小步将如何帮助您的业务快速实现增长。, show_cover_pic=1, thumb_media_id=1108329219263, title=【活动】“微信+Salesforce” 构建移动CRM 时代企业销售力, url=http://mp.weixin.qq.com/s?__biz=MzA4NDEyNzUwNw==&mid=224302667&idx=1&sn=e5885b018ae8af2ff3bb5031e91c1793#rd])]
+17:57:38.480 (480575932)|CUMULATIVE_LIMIT_USAGE
+17:57:38.480 (480575932)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 0 out of 100
+  Number of query rows: 0 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 0 out of 150
+  Number of DML rows: 0 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 1 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+17:57:38.480 (480575932)|CUMULATIVE_LIMIT_USAGE_END
+
+17:57:38.480 (480622403)|CODE_UNIT_FINISHED|execute_anonymous_apex
+17:57:38.482 (482469892)|EXECUTION_FINISHED

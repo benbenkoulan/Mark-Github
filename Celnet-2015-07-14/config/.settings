@@ -1,0 +1,19 @@
+{
+    "username": "mark.li@celnet.com.cn", 
+    "environment": "production", 
+    "project_name": "Celnet-2015-07-14", 
+    "workspace": "F:\\workspace\\", 
+    "org_url": "", 
+    "namespace": "", 
+    "id": "B4TEQ3KVKBDFBULXKXPDJ750Z5YWZ43D", 
+    "metadata_container": "1dc9000000033kHAAQ", 
+    "subscription": [
+        "ApexClass", 
+        "ApexComponent", 
+        "ApexPage", 
+        "ApexTrigger", 
+        "StaticResource", 
+        "CustomObject", 
+        "Profile"
+    ]
+}

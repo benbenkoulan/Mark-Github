@@ -1,0 +1,99 @@
+<apex:page docType="html-5.0" showHeader="false" applyBodyTag="false" id="page" controller="CW_Knowledge_Share_GradeController" standardStylesheets="false"
+>
+
+<html>
+<head>
+    <title>{!$User.FirstName}{!$User.LastName}评分</title>
+    
+    <!-- Baidu统计代码开始 -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "//hm.baidu.com/hm.js?8556eb3708f6a51cff7aeb374f5414c2";
+          var s = document.getElementsByTagName("script")[0]; 
+          s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <!-- Baidu统计代码结束 -->
+    
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta http-equiv='cache-control' content='no-cache' />
+    <meta http-equiv='expires' content='0' />
+    <meta http-equiv='pragma' content='no-cache' />
+    <meta content="telephone=no" name="format-detection" />
+    
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/jquery.mobile.icons.min.css')}" />
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/celnet.min.css')}" />
+    <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+    <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script>
+        $j = jQuery.noConflict();
+        
+        $j( document ).on( "mobileinit", function() {
+            $j.mobile.autoInitializePage = false;
+        });
+        
+    </script>
+    
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/jquery.mobile.icons.min.css')}" />
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/celnet.min.css')}" />
+    <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+    <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript">
+            $j = jQuery.noConflict();
+            
+            var jqm_theme = 'b';
+            $j(document).ready(function(){
+                
+                $j.mobile.initializePage();
+                $j('#manday-page').page({theme:jqm_theme});
+                
+                console.log($j('#tabs'));
+                $j( "#tabs" ).tabs("option", "active", 2);
+                $j( "#tabs" ).tabs("option", "show", {duration: 300});
+                
+                //$j("#page:j_id1:j_id2:0:j_id4").slider();
+               
+            });
+             
+    </script>
+    
+
+    
+</head>
+<body style="text-align:center;">
+       <b style="color:green"><apex:messages /></b>
+       <apex:form onsubmit="return false;" html-data-ajax="false">
+                  <apex:repeat value="{!kgList}" var="kg" >
+                      <div id="a" style="width:95%;margin:20px auto;text-align:left;border-top:0px;border-bottom:1px solid  #DDDDDD;{!if(message== null,'display:block' ,'display:none')}">
+                          <span style="align:center;font-size:25px;">请对本次的知识分享进行评价</span>
+                          <br/><br/>
+                          <span style="margin-top:5px;padding-top:5px;font-size:17px;">说明：你可以对同一个分享链接进行多次评分，但你每次的评分会覆盖上次的分值</span>
+                          <br/>
+                          <span style="margin-top:5px;padding-top:5px;font-size:17px;">知识分享题目</span>&nbsp;&nbsp;
+                          <span style="color:green;margin-top:5px;padding-top:5px;font-size:17px;">{!kg.kShare.Name}</span>
+                          <br/>
+                          <span style="margin-top:5px;padding-top:5px;font-size:17px;">演讲者</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          <span style="color:green;margin-top:5px;padding-top:5px;font-size:17px;">{!kg.kShare.Speaker_Name__c}</span>
+                          <br/><br/>
+                          <!--
+                          <span>演讲时间</span>
+                          <span style="color:green">{!kg.kShare.Start_Time__c}</span>
+                          <br/>
+                          -->
+                          <span style="margin-top:5px;padding-top:5px;font-size:17px;">您的评分</span>
+                          <apex:inputField type="number" html-data-highlight="true" html-data-type="range" html-min="0" html-max="10" value="{!kg.ksGrade.Grade__c}"/>                      
+                          <br/>
+                          <span style="margin-top:5px;padding-top:5px;font-size:17px;">您的建议</span> 
+                          <apex:inputField type="text" value="{!kg.ksGrade.Suggest__c}"/>
+                      </div> 
+                  </apex:repeat>   
+                  <a data-role="button" data-icon="action" class="ui-btn ui-shadow ui-icon-action ui-btn-icon-right" onclick="save();" style="font-size:20px;width:85%;margin:20px auto;{!if(message== null,'display:block' ,'display:none')}">提交</a>
+                  <apex:actionFunction action="{!save}" name="save"/>
+                  <a data-role="button" data-icon="back" class="ui-btn ui-shadow ui-icon-back ui-btn-icon-right" style="width:85%;margin:20px auto;{!if(message== null,'display:none' ,'display:block')}" href="javascript:WeixinJSBridge.invoke('closeWindow',{},function(res){});">返回</a>
+        </apex:form>
+</body>
+</html>
+</apex:page>

@@ -1,0 +1,222 @@
+<apex:page sidebar="false" Controller="ProjectDevelopmentTaskscontroller" id="p">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="stylesheet"  type="text/css" href="{!URLFOR($Resource.fullcalendar2, '/css/style.css')}" media="all"/>
+<script type='text/javascript' src="{!URLFOR($Resource.fullcalendar2,'/Scripts/jquery.min.js')}"></script>
+<script type='text/javascript' src="{!URLFOR($Resource.fullcalendar2,'/fullcalendar/fullcalendar.min.js')}"></script>
+<link rel="stylesheet"  type="text/css" href="{!URLFOR($Resource.fullcalendar2, '/fullcalendar/fullcalendar.css')}" media="all"/>
+<script type='text/javascript' src="{!URLFOR($Resource.fullcalendar2,'/lib/jquery-ui.custom.min.js')}"></script>
+<script src="/soap/ajax/29.0/connection.js" type="text/javascript"></script>
+<script src="/soap/ajax/29.0/apex.js" type="text/javascript"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.funsionChart,'/funsionChart/Product/FusionCharts.js')}"></script>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function() {
+        $(".tab li a").click(function(){ 
+            $(this).parent().parent().find("li a").removeClass("cur");
+            $(this).addClass("cur");
+            $(this).parent().parent().siblings("div").hide();  
+            var href = $(this).attr("rel");
+            $("#"+href).show(); 
+            $("#UserInfo").show();
+        });
+        renderCalendar();
+        renderCalendarSchedule();
+    });
+    function renderCalendar() {
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        $('#calendar').fullCalendar({
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'agendaWeek,agendaDay'
+            },
+            
+            firstHour: 7,
+            axisFormat: 'HH:mm',    
+
+            titleFormat:{month: 'MMMM yyyy', // September 2013
+                         week: "MMM d[ yyyy]{ '—'[ MMM] d yyyy}", // Sep 7 - 13 2013
+                         day: 'yyyy-MM-dd dddd' // Tuesday, Sep 8, 2013
+                        },
+            monthNames: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],  
+            monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],  
+            dayNames: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],  
+            dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],  
+            today: ["今天"],  
+            buttonText: {  prev:'<',next:'>',
+            today: '今天',  
+            month: '月',week:'周',day:'日'
+            
+            },  
+            editable: true,
+            defaultView:'agendaWeek',
+            events: function(start, end, callback){ 
+                try{
+                    var view = $('#calendar').fullCalendar('getView').name;
+                    var userId = document.getElementById('p:f:user_lkid').value;
+                    var listtasks = eval('('+sforce.apex.execute("ProjectDevelopmentTaskscontroller","getProidTasks",{startTime:start,endTime:end,dateType:view,userId:userId})+')');                 
+                }catch(e){alert(e);}
+                callback(listtasks);
+            },  
+            eventResize:function( event, dayDelta, minuteDelta, revertFunc) 
+            {
+                var eventId = event.Id;
+                sforce.apex.execute("ProjectDevelopmentTaskscontroller","updateTaskReSize",{eventId:eventId,eventMinute:minuteDelta});
+            },                                   
+            eventClick: function(calEvent, jsEvent, view) {
+                var eventId = calEvent.Id;
+                window.location.href = "../apex/NewProjectDevelopmentTaskPage?TaskId="+eventId;
+            },      
+            droppable: true,
+            eventDrop: function(event, dayDelta, minuteDelta, revertFunc)
+            {
+                var eventId = event.Id;
+                var msg = sforce.apex.execute("ProjectDevelopmentTaskscontroller","updateTaskDrop",{eventId:eventId,eventDays:dayDelta,eventMinute:minuteDelta});
+            },              
+            selectable: true,
+            selectHelper: true,
+            select: function( startDate, endDate, allDay, jsEvent, view ){
+                var start =$.fullCalendar.formatDate(startDate,'yyyy-MM-dd HH:mm:ss');
+                var end =$.fullCalendar.formatDate(endDate,'yyyy-MM-dd HH:mm:ss');
+                var view = $('#calendar').fullCalendar('getView').name;
+                window.location.href = "../apex/NewProjectDevelopmentTaskPage?startDate="+start+'&endDate='+end;
+            }                           
+        });
+    }   
+    
+    function refreshCalendarSchedule()
+    {
+        $('#calendar').fullCalendar('refetchEvents');
+        $('#calendarSchedule').fullCalendar('refetchEvents');
+    }
+</script>
+</head>
+<body>
+<apex:form id="f">
+   <script type="text/javascript" language="javascript">
+    function renderCalendarSchedule() {
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        $('#calendarSchedule').fullCalendar({
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month'
+            },
+            
+            firstHour: 7,
+            axisFormat: 'HH:mm',
+            droppable: true, // this allows things to be dropped onto the calendar !!!  
+            //contentHeight: top.document.documentElement.scrollHeight-100,     
+
+            titleFormat:{month: 'MMMM yyyy', // September 2013
+                         week: "MMM d[ yyyy]{ '—'[ MMM] d yyyy}", // Sep 7 - 13 2013
+                         day: 'yyyy-MM-dd dddd' // Tuesday, Sep 8, 2013
+                        },
+            monthNames: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],  
+            monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],  
+            dayNames: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],  
+            dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],  
+            today: ["本月"],  
+            buttonText: {  prev:'<',next:'>',
+            today: '本月',  
+            month: '月',week:'周',day:'日'
+            },  
+            editable: true,
+            defaultView:'month',
+            events: function(start, end, callback){ 
+                try{
+                    var view = $('#calendarSchedule').fullCalendar('getView').name;
+                    //alert(sforce.apex.execute("ProjectDevelopmentTaskscontroller","getProidTasks",{startTime:start,endTime:end,dateType:view}));
+                    var userId = document.getElementById('p:f:user_lkid').value; 
+                    var listtasks = eval('('+sforce.apex.execute("ProjectDevelopmentTaskscontroller","getProidTasks",{startTime:start,endTime:end,dateType:view,userId:userId})+')');                 
+                }catch(e){alert(e);}
+                callback(listtasks);
+            },  
+            eventResize:function( event, dayDelta, minuteDelta, revertFunc) 
+            {
+                var eventId = event.Id;
+                sforce.apex.execute("ProjectDevelopmentTaskscontroller","updateTaskReSize",{eventId:eventId,eventMinute:(minuteDelta+dayDelta*1440)});
+            },                                   
+            eventClick: function(calEvent, jsEvent, view) {
+                var eventId = calEvent.Id;
+                window.location.href = "../apex/PersonProjectSchedulePage?TaskId="+eventId;
+            },      
+            droppable: true,
+            eventDrop: function(event, dayDelta, minuteDelta, revertFunc)
+            {
+                var eventId = event.Id;
+                var msg = sforce.apex.execute("ProjectDevelopmentTaskscontroller","updateTaskDrop",{eventId:eventId,eventDays:dayDelta,eventMinute:minuteDelta});
+            },              
+            selectable: true,
+            //selectHelper: true,
+            select: function( startDate, endDate, allDay, jsEvent, view ){
+                var start =$.fullCalendar.formatDate(startDate,'yyyy-MM-dd HH:mm:ss'); 
+                var end =$.fullCalendar.formatDate(endDate,'yyyy-MM-dd HH:mm:ss');
+                window.location.href = "../apex/PersonProjectSchedulePage?startDate="+start+'&endDate='+end;
+            }                           
+        });
+    }   
+    </script>
+<div class="block">
+   <div class="con">
+        更多设计，敬请期待...有什么建议，可以QQ或邮箱告知我<br/>
+        QQ:371602633  邮箱：billkong@cideatech.com<br/>
+       <div Id="UserInfo"><apex:inputField id="user" value="{!user.developer__c}" onchange="refreshCalendarSchedule();"/></div>
+       <ul class="tab" style="height:30px;line-height:30px;">
+          <li style="line-height:30px;height:30px;"><a href="javascript:void(0)" class="cur" rel="calendarSchedule" style="height:30px;line-height:30px;">人员计划</a></li>
+          <li style="line-height:30px;height:30px;"><a href="javascript:void(0)" rel="calendar" style="line-height:30px;height:30px;">任务明细</a></li>
+          <li style="line-height:30px;height:30px;"><a href="javascript:void(0)" rel="tab3" style="line-height:30px;height:30px;">项目人天仪表板</a></li>
+      </ul>
+      <div id="calendarSchedule"></div> 
+      <div id="calendar"></div>
+      <div id="tab3">
+                    <p>&nbsp;</p>
+        <table align='center'>
+            <tr>
+                <td>
+                    <script type="text/javascript" src="{!URLFOR($Resource.funsionChart,'/funsionChart/StCol2D2.js')}" ></script>        
+                        <div id="chartdiv2" align="center"></div>                                            
+                        <script type="text/javascript">
+                            var chart = new FusionCharts("{!URLFOR($Resource.funsionChart,'/funsionChart/Charts/StackedColumn2D.swf')}", "ChartId1", "400", "300", "0", "0");
+                                    chart.setXMLData( dataString2 );           
+                                    chart.render("chartdiv2");
+                                </script>
+                </td>
+              <td>
+                    <script type="text/javascript" src="{!URLFOR($Resource.funsionChart,'/funsionChart/Angular5.js')}" ></script>        
+                    <div id="chartdiv" align="center"></div>
+                    <script type="text/javascript">
+                        var chart = new FusionCharts("{!URLFOR($Resource.funsionChart,'/funsionChart/Charts/AngularGauge.swf')}", "ChartId2", "400", "300", "0", "1" );
+                        chart.setXMLData( dataString );
+                        chart.render("chartdiv");
+                    </script>
+                </td>
+                <td>
+                        <script type="text/javascript" src="{!URLFOR($Resource.funsionChart,'/funsionChart/StCol2D1.js')}" ></script>        
+                        <div id="chartdiv1" align="center"></div>                                            
+                        <script type="text/javascript">
+                            var chart = new FusionCharts("{!URLFOR($Resource.funsionChart,'/funsionChart/Charts/StackedColumn2D.swf')} ", "ChartId3", "400", "300", "0", "0");
+                                    chart.setXMLData( dataString2 );           
+                                    chart.render("chartdiv1");
+                                </script>
+                </td>
+            </tr>
+        </table>     
+ 
+            <p>&nbsp;</p>
+            <p align="center" style="padding-left:5px; padding-right:5px;">【人员项目表】按人统计最近30天所参与的项目及各项目所用人天</p>
+            <p align="center" style="padding-left:5px; padding-right:5px;">【项目人员表】按项目统计最近30天的参与人员及所用人天</p>
+            <p>&nbsp;</p>
+            <div class="qua-button-holder"></div>
+            <div class="show-code-block"></div> 
+            <p align="center" style="padding-left:5px; padding-right:5px;">更多设计，敬请期待...仪表板这里设计我打算是用子弹图，柱图从人员和项目不同角度去分析，有什么建议，可以QQ或邮箱告知我<br/>QQ:371602633  邮箱：billkong@cideatech.com</p>         
+       
+      </div>
+   </div>
+</div>
+</apex:form>
+</body>
+</html>
+
+</apex:page>

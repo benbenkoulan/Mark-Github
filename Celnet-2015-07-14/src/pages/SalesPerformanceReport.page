@@ -1,0 +1,265 @@
+<apex:page controller="SalesPerformanceReport" tabStyle="SalesTargetCompleteStatus__c" sidebar="false" id="myPage">
+    
+        <link href="/sCSS/32.0/sprites/1420068168000/Theme3/zh/gc/zen-componentsCompatible.css" rel="stylesheet" type="text/css"/>
+        <link href="/sCSS/32.0/sprites/1420068168000/Theme3/zh/gc/elements.css" rel="stylesheet" type="text/css"/>
+        <link href="/sCSS/32.0/sprites/1420068168000/Theme3/zh/gc/common.css" rel="stylesheet" type="text/css"/>
+        <link href="/sCSS/32.0/sprites/1420068168000/Theme3/zh/gc/rlHovers.css" rel="stylesheet" type="text/css"/>
+        <link href="/sCSS/32.0/sprites/1420068168000/Theme3/zh/gc/chatterCore.css" rel="stylesheet" type="text/css"/>
+        <link href="/sCSS/32.0/sprites/1420068168000/Theme3/zh/gc/chatterExtended.css" rel="stylesheet" type="text/css"/>
+        <link href="/sCSS/32.0/sprites/1418663684000/Theme3/gc/dStandard.css" rel="stylesheet" type="text/css"/>
+        <link href="/sCSS/32.0/sprites/1423533094000/Theme3/00D900000011gkK/00590000003BwB1/gc/dCustom0.css" rel="stylesheet" type="text/css"/>
+        <link href="/sCSS/32.0/sprites/1420068168000/Theme3/zh/gc/extended.css" rel="stylesheet" type="text/css"/>
+    <style type="text/css">
+        .leftBoder{border-left: 1px solid #e0e3e5 !important;}
+        .tableBoder{border: 1px solid #e0e3e5 !important;}
+        .sectionTitle{text-align:center !important;}
+        .adjustTd{width:180px !important;}
+    </style>
+    <script type="text/javascript">
+        function showLoad()
+        {
+            document.getElementById("loading").style.display="";
+        }
+        
+        function hideLoad()
+        {
+            document.getElementById("loading").style.display="none";
+        }
+    </script>
+    <body text-align="center">
+        <apex:messages id="myMessage"/>
+        <apex:form id="f">
+            <div id="loading" style="display:none;position:fixed !important;position:absolute;top:0;left:0;height:100%; width:100%; z-index:1005; background:#fff url({!URLFOR($Resource.Loading)}) no-repeat center center; opacity:0.6; filter:alpha(opacity=60);font-size:14px;line-height:20px;"> 
+            </div>
+            <div class="pbBody">
+                <apex:sectionHeader title="销售业绩报表"></apex:sectionHeader>
+                <apex:pageBlock title="销售业绩完成情况">
+                    <apex:pageBlockButtons location="top">
+                        <apex:commandButton value="刷新" action="{!refresh}" status="myStatus" onclick="showLoad();" rerender="myMessage,f"></apex:commandButton>
+                    </apex:pageBlockButtons>
+                    <table class="list tableBoder" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr class="headerRow">
+                                <th></th>
+                                <th colspan="7" class="zen-deemphasize sectionTitle" scope="col">{!FirstMonth}</th>
+                                <th colspan="7" class="zen-deemphasize sectionTitle" scope="col">{!SecondMonth}</th>
+                                <th colspan="7" class="zen-deemphasize sectionTitle" scope="col">{!ThirdMonth}</th>
+                                <th colspan="7" class="zen-deemphasize sectionTitle" scope="col">{!quarterLabel}</th>
+                                <th colspan="7" class="zen-deemphasize sectionTitle" scope="col">{!reportYear}</th>
+                            </tr>
+                            <tr class="headerRow">
+                                <th class=" zen-deemphasize" scope="col">销售</th>
+                                <th class=" zen-deemphasize" scope="col">目标</th>
+                                <th class=" zen-deemphasize" scope="col">确认</th>
+                                <th class=" zen-deemphasize" scope="col">完成</th>
+                                <th class=" zen-deemphasize" scope="col">完成率</th>
+                                <th class=" zen-deemphasize" scope="col">最高完成</th>
+                                <th class=" zen-deemphasize" scope="col">同期</th>
+                                <th class=" zen-deemphasize" scope="col">同 期 比</th>
+                                <th class=" zen-deemphasize" scope="col">目标</th>
+                                <th class=" zen-deemphasize" scope="col">确认</th>
+                                <th class=" zen-deemphasize" scope="col">完成</th>
+                                <th class=" zen-deemphasize" scope="col">完成率</th>
+                                <th class=" zen-deemphasize" scope="col">最高完成</th>
+                                <th class=" zen-deemphasize" scope="col">同期</th>
+                                <th class=" zen-deemphasize" scope="col">同 期 比</th>
+                                <th class=" zen-deemphasize" scope="col">目标</th>
+                                <th class=" zen-deemphasize" scope="col">确认</th>
+                                <th class=" zen-deemphasize" scope="col">完成</th>
+                                <th class=" zen-deemphasize" scope="col">完成率</th>
+                                <th class=" zen-deemphasize" scope="col">最高完成</th>
+                                <th class=" zen-deemphasize" scope="col">同期</th>
+                                <th class=" zen-deemphasize" scope="col">同 期 比</th>
+                                <th class=" zen-deemphasize" scope="col">目标</th>
+                                <th class=" zen-deemphasize" scope="col">确认</th>
+                                <th class=" zen-deemphasize" scope="col">完成</th>
+                                <th class=" zen-deemphasize" scope="col">完成率</th>
+                                <th class=" zen-deemphasize" scope="col">最高完成</th>
+                                <th class=" zen-deemphasize" scope="col">同期</th>
+                                <th class=" zen-deemphasize" scope="col">同 期 比</th>
+                                <th class=" zen-deemphasize" scope="col">滚动目标</th>
+                                <th class=" zen-deemphasize" scope="col">完成</th>
+                                <th class=" zen-deemphasize" scope="col">完成率</th>
+                                <th class=" zen-deemphasize" scope="col">同期</th>
+                                <th class=" zen-deemphasize" scope="col">增长率</th>
+                            </tr>
+                            <apex:repeat value="{!list_SalesPerformance}" var="performance">
+                                <tr class="dataRow even last first" onblur="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onmouseover="if (window.hiOn){hiOn(this);}">
+                                    <td class="dataCell"><apex:outputText value="{!performance.SalesName}"/></td>
+                                    <td class="dataCell leftBoder">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.FirstMonth.Target}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.FirstMonth.CommitAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.FirstMonth.CompletedAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.FirstMonth.CompletedRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.FirstMonth.HighestFinishRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.FirstMonth.SamePeriodAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.FirstMonth.SamePeriodRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell leftBoder">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.SecondMonth.Target}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.SecondMonth.CommitAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.SecondMonth.CompletedAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.SecondMonth.CompletedRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.SecondMonth.HighestFinishRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.SecondMonth.SamePeriodAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.SecondMonth.SamePeriodRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell leftBoder">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.ThirdMonth.Target}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.ThirdMonth.CommitAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.ThirdMonth.CompletedAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.ThirdMonth.CompletedRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.ThirdMonth.HighestFinishRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.ThirdMonth.SamePeriodAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.ThirdMonth.SamePeriodRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell leftBoder">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.Quarter.Target}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.Quarter.CommitAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.Quarter.CompletedAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.Quarter.CompletedRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.Quarter.HighestFinishRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.Quarter.SamePeriodAmount}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.Quarter.SamePeriodRate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell leftBoder">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.yearInfo.rollingTarget}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.yearInfo.act}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.yearInfo.attain}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell">
+                                        <apex:outputText value="{0, number, #####0}">
+                                            <apex:param value="{!performance.yearInfo.samePeriod}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="dataCell adjustTd" >
+                                        <apex:outputText value="{0, number, #####0}%">
+                                            <apex:param value="{!performance.yearInfo.yoy}"/>
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                        </tbody>
+                    </table>
+                </apex:pageBlock>
+            </div>
+        </apex:form>
+        <apex:actionStatus id="myStatus">
+            <apex:facet name="stop"><script>hideLoad();</script></apex:facet>
+        </apex:actionStatus>
+    </body>
+</apex:page>

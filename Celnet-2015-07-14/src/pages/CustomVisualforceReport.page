@@ -1,0 +1,8 @@
+<apex:page controller="CustomVisualforceReportController">
+	<apex:form >
+		<apex:sectionHeader title="按钮管理" subTitle="请选择按钮"/>
+		<apex:pageBlock title="销售业绩报表">
+			<apex:commandButton value="查看销售业绩报表" action="{!salesPerformanceReport}"/>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

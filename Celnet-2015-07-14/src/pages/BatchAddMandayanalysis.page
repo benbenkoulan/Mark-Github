@@ -1,0 +1,132 @@
+<apex:page standardController="mandayanalysis__c" extensions="BatchAddMandayanalysisController">
+<style>
+.body{border:0 auto;}
+.apexp .bPageBlock .detailList .list table td,.apexp .bPageBlock .detailList .list table th
+    {
+    border-bottom: 0
+}
+.lblfont{ color:#4a4a56 !important;white-space: nowrap;font-size: 91%;font-weight: bold;}
+.lookupInput{vertical-align:top;}
+</style>
+<script>
+function checkAll(cb)
+{
+    var inputElem = document.getElementsByTagName("input");
+    for(var i=0; i<inputElem.length; i++)
+    {
+        if(inputElem[i].id.indexOf("selectOpt")!=-1)
+        inputElem[i].checked = cb.checked;
+    }
+}
+function miniUpdate(obj){
+	alert("123"+obj.name);
+	
+}
+</script>
+
+<apex:form id="f" >
+<apex:pageBlock title="项目人天"  id="ert">
+<apex:pageMessages id="pageMessage"/>
+<table border="0" class="detailList" style="width:90% !important;">
+    <tr>
+        <td class="lblfont">工作者</td>
+        <td>
+            <apex:inputField value="{!mansis.relateuser__c}" >
+                <apex:actionSupport event="onchange" action="{!ChangeUser}" rerender="ert" status="Statususer"/>
+                <apex:actionStatus id="Statususer">
+                    <apex:facet name="start">
+                        <apex:image value="{!URLFOR($Resource.AjaxAnimation)}" />
+                    </apex:facet>
+                    <apex:facet name="stop">
+                    </apex:facet>
+                </apex:actionStatus>
+            </apex:inputField>
+        </td>       	
+        <td class="lblfont">所属周</td>
+        <td>
+            <apex:selectList value="{!selectListValue}" size="1" id="ss">
+                <apex:selectOptions value="{!OptionList}" />
+                <apex:actionSupport event="onchange" action="{!init}" rerender="ert" status="Statuslist"/>
+            </apex:selectList>
+            <apex:actionStatus id="Statuslist">
+                <apex:facet name="start">
+                    <apex:image id="messageIconlist" value="{!URLFOR($Resource.AjaxAnimation)}" />
+                </apex:facet>
+                <apex:facet name="stop">
+                </apex:facet>
+            </apex:actionStatus>
+        </td>
+        <td class="lblfont">周开始</td>
+        <td>
+           <apex:outputText value="{0,date,yyyy-MM-dd}" id="start">
+               <apex:param value="{!weekStart}" />
+           </apex:outputText>
+
+        </td>
+        <td class="lblfont">周结束</td>
+        <td>
+           <apex:outputText value="{0,date,yyyy-MM-dd}" id="end">
+               <apex:param value="{!weekEnd}" />
+           </apex:outputText>
+        </td>
+    </tr>
+</table>
+<apex:pageBlockTable value="{!mansisList}" var="man" id="table">
+    <apex:column Style="width:1%">
+        <apex:facet name="header" >
+             <input type="checkbox"  id="chkall" onclick="checkAll(this)" />
+        </apex:facet>
+        <apex:inputCheckbox id="selectOpt" value="{!man.IsDelete}"/> 
+    </apex:column>
+    <apex:column headerValue="项目" style="width:24%" >
+        <apex:outputField value="{!man.mansiss.Project_assisted__c}" style="width: 200px;" rendered="{!man.updateIsFalse}"/>
+        <apex:inputField value="{!man.mansiss.Project_assisted__c}" style="width: 200px;" onchange="miniUpdate2()" rendered="{!man.updateIsTrue}"/>
+    </apex:column>
+    <apex:column headerValue="类型" style="width:2%">
+        <apex:inputField value="{!man.mansiss.NProjectType__c}" style="width: 60px;"/>
+    </apex:column>
+    <apex:column headerValue="阶段" style="width:4%" id="test">
+        <apex:inputField value="{!man.mansiss.NProjectStage__c}" />
+    </apex:column>
+    <apex:column headerValue="休假" style="width:1%">
+        <apex:inputField value="{!man.mansiss.HolidayStyle__c}" />
+    </apex:column>
+    <apex:column headerValue="人天" style="width:1%">
+        <apex:inputField value="{!man.mansiss.manday__c}" onchange="miniUpdate2()" style="width: 30px;"/>
+    </apex:column>
+    <apex:column headerValue="备注" style="width:45%">
+        <apex:inputField value="{!man.mansiss.description__c}" style="width: 508px;height:16px;" />
+    </apex:column>
+</apex:pageBlockTable>
+<apex:actionFunction action="{!miniUpdate}" name="miniUpdate2" rerender="ert">
+    </apex:actionFunction>
+<table align="center">
+    <tr>
+        <td>
+            <apex:commandButton value="添加" action="{!Addmandayanalysis}" reRender="ert" status="StatusAdd"/>
+            <apex:actionStatus id="StatusAdd">
+                <apex:facet name="start">
+                    <apex:image id="messageIconadd" value="{!URLFOR($Resource.AjaxAnimation)}" />
+                </apex:facet>
+                <apex:facet name="stop">
+                </apex:facet>
+            </apex:actionStatus>
+        </td>
+        <td>
+            <apex:commandButton value="删除" action="{!Deletemandayanalysis}" reRender="ert" />
+        </td>
+        <td>
+            <apex:commandButton value="保存" action="{!Save}"/> 
+        </td>
+        <td>
+            <apex:commandButton value="返回" action="{!Cancel}" /> 
+        </td>
+    </tr>
+</table>
+</apex:pageBlock>
+<!--  
+选择日期<apex:inputText style="width:60px;" onchange="changeSelectDate();" Id="selectDate" value="{!selectedDate}" onfocus="DatePicker.pickDate(true, 'j_id0:f:selectDate', false);"/>
+-->
+<apex:actionFunction action="{!SelectDateMethod}" name="changeSelectDate" rerender="ss,start,end"></apex:actionFunction>	
+</apex:form>
+</apex:page>

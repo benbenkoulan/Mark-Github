@@ -1,0 +1,1020 @@
+<apex:page docType="html-5.0" controller="CW_ProjectStepManagerController" applyHtmlTag="false"  showHeader="false" sidebar="false" standardStylesheets="false" >
+<html>
+    <head>
+            <title>项目阶段管理 - {!$User.FirstName} {!$User.LastName}</title>
+            <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+            <meta http-equiv='cache-control' content='no-cache' />
+            <meta http-equiv='expires' content='0' />
+            <meta http-equiv='pragma' content='no-cache' />
+            <meta content="telephone=no" name="format-detection" />
+            
+            <!-- Baidu统计代码开始 -->
+            <script>
+                var _hmt = _hmt || [];
+                (function() {
+                  var hm = document.createElement("script");
+                  hm.src = "//hm.baidu.com/hm.js?8556eb3708f6a51cff7aeb374f5414c2";
+                  var s = document.getElementsByTagName("script")[0]; 
+                  s.parentNode.insertBefore(hm, s);
+                })();
+            </script>
+            <!-- Baidu统计代码结束 -->
+            
+            <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+            <script src="//kottenator.github.io/jquery-circle-progress/dist/circle-progress.js"></script>
+            
+            <script>
+                $j = jQuery.noConflict();
+                
+                $j( document ).on( "mobileinit", function() {
+                    $j.mobile.autoInitializePage = false;
+                });
+            </script>
+            
+            <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/jquery.mobile.icons.min.css')}" />
+            <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/celnet.min.css')}" />
+            <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+            <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+            
+            <!-- Page Header Template -->
+            <script type="text/template" id="page-header-template">
+              <div data-role="header" id="project-steps-header" role="banner" class="ui-header ui-bar-inherit" style="height: 46px; border-bottom-color: #8AC645; border-bottom-width: 2px; background-color: white;">
+                <a class="ui-btn-left ui-btn ui-corner-all" id="page-header-left-button" href="#" data-role="button" role="button" style="margin-left: 5px;margin-top: 2.2px; ">返回</a>
+                <h1 class="ui-title" role="heading" aria-level="1">{{page-title}}</h1>
+              </div>
+            </script>
+            
+            <!-- Project List Template -->
+            <script type="text/template" id="project-list-template">
+            </script>
+            
+            <!-- Step List Template -->
+            <script type="text/template" id="step-list-template">
+            </script>
+            
+            <!-- Step Editor Template-->
+            <script type="text/template" id="step-editor-template">
+              <div>
+              <div style="margin:10px;">
+                <label for="project-step-name" id="project-step-name-label" >阶段名称:</label>
+                <select id="project-step-name" name="project-step-name" onchange="ProjectStepManager.hideStepNameErrorInfo()">
+                  {{project-step-name-list}}
+                </select>
+              </div>
+              
+              <div style="margin:10px;">
+                <label for="due-start-date">计划开始时间:</label>
+                <input type="date" name="due-start-date" id="due-start-date" value="{{due-start-date}}" />
+              </div>
+              
+              <div style="margin:10px;">
+                <label for="due-end-date">计划结束时间:</label>
+                <input type="date" name="due-end-date" id="due-end-date" value="{{due-end-date}}" />
+              </div>
+              
+              <div id="remittance">
+              <div style="margin:10px;">
+                <fieldset data-role="controlgroup">
+                  <legend>是否收款阶段：</legend>
+                  <input type="checkbox" name="is-remittance-step" id="is-remittance-step" onchange="ProjectStepManager.showRemittanceInput('{{project-type}}', '{{project-index}}','{{step-index}}')" {{is-remittance-step}}>
+                  <label for="is-remittance-step">收款阶段</label>
+                </fieldset>
+              </div> 
+               
+              </div>
+              
+              <!--
+              <div style="margin:10px;">
+                <label for="actual-start-date">实际开始时间:</label>
+                <input type="date" name="actual-start-date" id="actual-start-date" value="{{actual-start-date}}" />
+              </div>
+              
+              <div style="margin:10px;">
+                <label for="actual-end-date">实际结束时间:</label>
+                <input type="date" name="actual-end-date" id="actual-end-date" value="{{actual-end-date}}"/>
+              </div>
+              -->
+              
+              <div style="margin:10px;">
+                <label for="step-description">阶段描述:</label>
+                <textarea name="step-description" id="step-description" style="resize:none;" >{{step-description}}</textarea>
+              </div>
+              </div>
+              <div class="control-buttons" style="text-align: center;">
+                  <a class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all" id="step-cancel-edit-button" data-inline="true" data-role="button" role="button" href="javascript:ProjectStepManager.invokeAction('save-step', '{{project-type}}', '{{project-index}}','{{step-index}}');">保存</a>
+                  <a class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all" id="step-edit-button" data-inline="true" data-role="button" role="button" href="javascript:ProjectStepManager.invokeAction('cancel-edit-step', '{{project-type}}', '{{project-index}}','{{step-index}}');">取消</a>
+                  <a style="color:white;text-shadow:none;background-color:crimson;" id="step-delete-button" class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all" data-inline="true" data-role="button" role="button" href="javascript:ProjectStepManager.invokeAction('delete-step', '{{project-type}}', '{{project-index}}','{{step-index}}');">删除</a>
+              </div>
+            </script>
+            
+            <!-- Step Editor Remittance Input Template -->
+            <script type="text/template" id="step-editor-remittance-input-template">
+                <div style="margin:10px;" id="remittance-amount-div" >
+                    <label for="remittance-amount" id="remittance-amount-label" >收款金额:</label>
+                    <input type="number" name="remittance-amount" id="remittance-amount" value="{{remittance-amount}}" placeholder="0" onkeydown="ProjectStepManager.hideRemittanceAmountErrorInfo()" />
+                </div>
+            </script>
+            
+            <!-- Manager FAQ Template -->
+            <script type="text/template" id="manager-faq-template">
+                <div style="text-align:center;">
+                    <a href="#manager-faq" data-rel="popup" class="ui-btn ui-btn-inline ui-corner-all" data-position-to="window">{{manager-faq-label}}</a>
+                    <div data-role="popup" id="manager-faq" class="ui-content">
+                      <p>若没有找到你的项目，请到 Salesforce 系统查看<br/>
+                      1. 项目的项目经理或者所有人是否是你自己?<br/>
+                      2. 项目的状态是否为开启状态?<br/>
+                      3. 项目的阶段是否为已完成，已完成的项目未显示这里。<br/>
+                      若还有其他问题，请联系管理员。
+                      </p>
+                    </div>
+                </div>
+            </script>
+            
+            <script>
+                
+                var jqm_theme = 'b';
+                
+                var sf_projects = {};
+                sf_projects.sales_projects = [];
+                sf_projects.maintenance_projects = [];
+                sf_projects.implementation_projects = [];
+                sf_projects.outsourcing_projects = [];
+                sf_projects.internal_projects = [];
+                
+                var project_step_names = [];
+                
+                document.addEventListener('DOMContentLoaded', function(){
+                    document.querySelector('body').innerHTML = document.querySelector('#page-structure-template').text;
+                    
+                    $j.mobile.initializePage();
+                    $j('#pageone').page({theme:jqm_theme});
+                    
+                    ProjectStepManager.loadEventAction();
+                }, false);
+                
+                var ProjectStepManager = (function(){
+                    
+                    var invoke = function(_action_type, _p_type, _p_index, _s_index){
+                        switch (_action_type) {
+                            // 添加项目阶段
+                            case 'add-step': 
+                                _hmt.push(['_trackEvent', '项目', '添加项目阶段']);//百度统计事件跟踪代码
+                                ActionManager.add_step(_p_type, _p_index);
+                                break;
+                            // 编辑项目阶段
+                            case 'edit-step':
+                                _hmt.push(['_trackEvent', '项目', '编辑项目阶段']);//百度统计事件跟踪代码
+                                ActionManager.edit_step(_p_type, _p_index, _s_index);
+                                break;
+                            // 保存项目阶段
+                            case 'save-step':
+                                _hmt.push(['_trackEvent', '项目', '保存项目阶段']);//百度统计事件跟踪代码
+                                ActionManager.save_step(_p_type, _p_index, _s_index);
+                                break;
+                            // 删除项目阶段
+                            case 'delete-step':
+                                _hmt.push(['_trackEvent', '项目', '删除项目阶段']);//百度统计事件跟踪代码
+                                ActionManager.delete_step(_p_type, _p_index, _s_index);
+                                break;
+                            // 取消编辑项目阶段
+                            case 'cancel-edit-step':
+                                _hmt.push(['_trackEvent', '项目', '取消编辑项目阶段']);//百度统计事件跟踪代码
+                                ActionManager.cancel_edit_step(_p_type, _p_index);
+                                break;
+                            // 查看阶段列表
+                            case 'view-steplist':
+                                _hmt.push(['_trackEvent', '项目', '查看项目阶段']);//百度统计事件跟踪代码
+                                ActionManager.view_steplist(_p_type, _p_index);
+                                break;
+                            // 查看项目列表
+                            case 'view-projectlist':
+                                _hmt.push(['_trackEvent', '项目', '返回项目列表']);//百度统计事件跟踪代码
+                                ActionManager.view_projectlist();
+                                break;
+                            default:
+                                console.log('Action Type: ' + _action_type);
+                        }
+                    }
+                    
+                    var ActionManager = {
+                    
+                        // 添加项目阶段 ptype, pid, sid
+                        add_step: function(_p_type, _p_id){
+                            ViewManager.displayStepEditor(_p_type, _p_id, 'new');
+                        },
+                        
+                        // 编辑项目阶段 ptype, pid, sid
+                        edit_step: function(_p_type, _p_id, _step_id){
+                            ViewManager.displayStepEditor(_p_type, _p_id, _step_id);
+                        },
+                        
+                        // 保存项目阶段 ptype, pid, sid
+                        save_step: function(_p_type, _p_id, _step_id){
+                            
+                            if(!ActionManager.validateStepEditor(_p_type, _p_id, _step_id)){
+                                return false;
+                            }
+                            
+                            ViewManager.showAjaxLoading('保存中');
+                            
+                            var save_project_step = {"apexType":"c.CW_WeekPlanController.ProjectStepWrapper"};
+                            
+                            save_project_step.id = '';
+                            if(_step_id != 'new'){
+                                save_project_step.id = sf_projects[_p_type + '_projects'][_p_id].project_step_list[_step_id].id;
+                            }
+                            save_project_step.project_id = sf_projects[_p_type + '_projects'][_p_id].id;
+                            save_project_step.project_step_name = document.querySelector('#project-step-name').value;
+                            save_project_step.due_start_date = document.querySelector('#due-start-date').value;
+                            save_project_step.due_end_date = document.querySelector('#due-end-date').value;
+                            //save_project_step.actual_start_date = document.querySelector('#actual-start-date').value;
+                            //save_project_step.actual_end_date = document.querySelector('#actual-end-date').value;
+                            save_project_step.step_description = document.querySelector('#step-description').value;
+                            save_project_step.is_remittance_step = document.querySelector('#is-remittance-step').checked;
+                            if(save_project_step.is_remittance_step){
+                                save_project_step.remittance_amount = document.querySelector('#remittance-amount').value;
+                            }
+                            
+                            CW_ProjectStepManagerController.saveProjectStep(save_project_step,function(result, event) {
+                                ViewManager.hideAjaxLoading();
+                                if(event.status) {
+                                    
+                                    if(result.dml_status == 'success'){
+                                        if(_step_id == 'new'){
+                                            // push
+                                            sf_projects[_p_type + '_projects'][_p_id].project_step_list.push(result.project_step_wrapper);
+                                        } else {
+                                            // replace
+                                            sf_projects[_p_type + '_projects'][_p_id].project_step_list[_step_id] = result.project_step_wrapper;
+                                        }
+                                        
+                                        // 显示阶段列表
+                                       ViewManager.displayProjectStepList( _p_type, _p_id );
+                                    } else {
+                                        alert(result.dml_status);
+                                    }
+                                } else {
+                                    alert("网络不太好，再试试看");
+                                }
+                            });
+                        },
+                        
+                        // 删除项目阶段 ptype, pid, sid
+                        delete_step: function(_p_type, _p_id, _step_id){
+                            var delete_step_id = sf_projects[_p_type + '_projects'][_p_id].project_step_list[_step_id].id;
+                            
+                            if(confirm('真的要删掉吗？')){
+                                ViewManager.showAjaxLoading('删除中');
+                                CW_ProjectStepManagerController.deleteProjectStep(delete_step_id, function(result, event) {
+                                    ViewManager.hideAjaxLoading();
+                                    if(event.status) {
+                                        if(result == 'success'){
+                                            // splice
+                                            sf_projects[_p_type + '_projects'][_p_id].project_step_list.splice(_step_id,1);
+                                            // 删除
+                                            ViewManager.displayProjectStepList( _p_type, _p_id );
+                                        } else {
+                                            alert(result);
+                                        }
+                                    } else {
+                                        alert("网络不太好，再试试看");
+                                    }
+                                });
+                            }
+                        },
+                        
+                        // 取消编辑项目阶段，返回项目阶段列表 ptype, pid
+                        cancel_edit_step: function(_p_type, _p_id){
+                            ViewManager.displayProjectStepList( _p_type, _p_id );
+                        },
+                        
+                        // 查看项目阶段列表 ptype, pid
+                        view_steplist: function(_p_type, _p_id){
+                            ViewManager.displayProjectStepList( _p_type, _p_id );
+                        },
+                        
+                        // 返回项目列表
+                        view_projectlist: function(){
+                            ViewManager.displayProjectList();
+                        },
+                        
+                        // 校验数据
+                        validateStepEditor: function(_p_type, _p_id, _step_id){
+                    
+                            // 验证阶段名称
+                            if(document.querySelector('#project-step-name').value == ''){
+                                // 显示错误信息
+                                document.querySelector('#project-step-name').parentNode.style.background = 'mistyrose';
+                                
+                                if(document.querySelector('#project-step-name-label span') == undefined){
+                                    $j('#project-step-name-label').append('<span style="margin-left:20px;color:crimson;">必填</span>');
+                                }
+                                
+                                document.querySelector('#project-step-name').focus();
+                                
+                                return false;
+                            } 
+                            
+                            // 收款阶段为true时，收款金额不能为空
+                            if(document.querySelector('#is-remittance-step').checked){
+                                var _v = document.querySelector('#remittance-amount').value;
+                                if(_v == undefined || _v == '' || _v <= 0){
+                                    
+                                    document.querySelector('#remittance-amount').style.background = 'mistyrose';
+                                    
+                                    if(document.querySelector('#remittance-amount-label span') == undefined){
+                                        $j('#remittance-amount-label').append('<span style="margin-left:20px;color:crimson;">必填且格式为数字</span>');
+                                    }
+                                    
+                                    document.querySelector('#remittance-amount').focus();
+                                    
+                                    // 显示错误
+                                    return false;
+                                }
+                            }
+                            
+                            return true;
+                        },
+                        
+                        loadEventAction: function(){
+                            ViewManager.showAjaxLoading('加载中');
+                            CW_ProjectStepManagerController.initiateProjects(function(result, event) {
+                                ViewManager.hideAjaxLoading();
+                                if(event.status) {
+                                    ActionManager.categorizeProjects(result.project_wrapper_list);
+                                    project_step_names = result.project_step_name_list;
+                                    ViewManager.displayProjectList();
+                                    
+                                } else {
+                                    alert("网络不太好，再试试看");
+                                }
+                            });
+                        },
+                        
+                        
+                        categorizeProjects: function(projects){
+                            for(var i = 0; i < projects.length; i++){
+                                switch (projects[i].project_type) {
+                                  case "销售":
+                                    sf_projects.sales_projects.push(projects[i]);
+                                    break;
+                                  case "维护":
+                                    sf_projects.maintenance_projects.push(projects[i]);
+                                    break;
+                                  case "内部":
+                                    sf_projects.internal_projects.push(projects[i]);
+                                    break;
+                                  case "实施":
+                                    sf_projects.implementation_projects.push(projects[i]);
+                                    break;
+                                  case "外包":
+                                    sf_projects.outsourcing_projects.push(projects[i]);
+                                    break;
+                                  default:
+                                    console.log(projects[i]);
+                                }
+                            }
+                        }
+                    }
+                    
+                    var ViewManager = {
+                        
+                        displayStepEditor: function(_p_type, _p_id, _step_id){
+                            ViewManager.showHeader(sf_projects[_p_type + '_projects'][_p_id].project_name, 'javascript:ProjectStepManager.invokeAction("view-steplist", "' + _p_type + '", "' + _p_id + '");');
+                            var _temp = document.querySelector('#step-editor-template').text;
+                            _temp = _temp.replace(/{{project-type}}/g, _p_type);
+                            _temp = _temp.replace(/{{project-index}}/g, _p_id);
+                            _temp = _temp.replace(/{{step-index}}/g, _step_id);
+                            
+                            _temp = _temp.replace('{{project-step-name-list}}',DOMManager.retrieveProjectNameList());
+                            
+                            var _edit_step = {};
+                            _edit_step.actual_end_date = '';
+                            _edit_step.actual_start_date = '';
+                            _edit_step.due_start_date = '';
+                            _edit_step.due_end_date = '';
+                            _edit_step.is_remittance_step = false;
+                            _edit_step.project_Id = sf_projects[_p_type + '_projects'][_p_id].sfProject.Id;
+                            _edit_step.project_step_name = '';
+                            _edit_step.step_description = '';
+                            _edit_step.remittance_amount = 0;
+                            _edit_step.id = 'new';
+                            
+                            if(_step_id != 'new'){
+                                _edit_step = sf_projects[_p_type + '_projects'][_p_id].project_step_list[_step_id];
+                            }
+                            
+                            _temp = _temp.replace('{{actual-end-date}}', _edit_step.actual_end_date);
+                            _temp = _temp.replace('{{actual-start-date}}', _edit_step.actual_start_date);
+                            _temp = _temp.replace('{{due-end-date}}', _edit_step.due_end_date);
+                            _temp = _temp.replace('{{due-start-date}}', _edit_step.due_start_date);
+                            
+                            if(_edit_step.is_remittance_step){
+                                _temp = _temp.replace('{{is-remittance-step}}', 'checked');
+                            }
+                            
+                            //_temp = _temp.replace('{{project-step-name}}', _edit_step.project_step_name);
+                            
+                            if(_edit_step.step_description == undefined){
+                                _edit_step.step_description = '';
+                            }
+                            
+                            _temp = _temp.replace('{{step-description}}', _edit_step.step_description);
+                            
+                            document.querySelector('#project-steps-container div').innerHTML = _temp;
+                            
+                            if(_edit_step.is_remittance_step){
+                                ViewManager.showRemittanceInput(_p_type, _p_id, _step_id);
+                            }
+                            
+                            if(_step_id == 'new'){
+                                $j('#step-delete-button').remove();
+                            }
+                            
+                            _edit_step.project_step_name = ( _edit_step.project_step_name == null?'':_edit_step.project_step_name);
+                            
+                            document.querySelector('#project-step-name option[value="' + _edit_step.project_step_name + '"]').selected = 'true';
+                            
+                            $j( 'select' ).selectmenu();
+                            $j( 'input[type="date"]' ).textinput();
+                            $j( 'input[type="text"]' ).textinput();
+                            $j( 'input[type="number"]' ).textinput();
+                            $j( 'input[type="checkbox"]' ).checkboxradio({
+                              defaults: true
+                            });
+                            
+                            $j( 'textarea' ).textinput();
+                        },
+                        
+                        displayProjectList: function(){
+                            //ViewManager.showHeader('我负责的项目');
+                            
+                            $j('#page-header-container div').remove();
+                            document.querySelector('#project-steps-container div').innerHTML = '';
+                            var _ul = DOMManager.createUnorderedList();
+                            
+                            _ul = DOMManager.createProjectListByType('implementation', _ul);
+                            _ul = DOMManager.createProjectListByType('maintenance', _ul);
+                            _ul = DOMManager.createProjectListByType('outsourcing', _ul);
+                            _ul = DOMManager.createProjectListByType('sales', _ul);
+                            _ul = DOMManager.createProjectListByType('internal', _ul);
+                            
+                            var _faq_label = '没有找到项目?';
+                            
+                            if(_ul.children.length > 0){
+                                _ul.children[0].classList.add('ui-first-child');
+                                _ul.children[_ul.children.length - 1].classList.add('ui-last-child');
+                            } else {
+                                var _no_step = document.createElement('div');
+                                _no_step.style.textAlign = 'center';
+                                _no_step.style.margin = '50px 0';
+                                _no_step.style.color = '#bbb';
+                                
+                                var _no_step_text = document.createTextNode('～您当前没有负责的项目～');
+                                _no_step.appendChild(_no_step_text);
+                                
+                                _ul = _no_step;
+                                
+                                _faq_label = '有问题?';
+                            }
+                            
+                            var _faq = document.querySelector('#manager-faq-template').text;
+                            _faq = _faq.replace('{{manager-faq-label}}',_faq_label);
+                            
+                            var _faq_div = document.createElement('div');
+                            _faq_div.id = 'faq-div-container';
+                            
+                            document.querySelector('#project-steps-container div').appendChild(_ul);
+                            document.querySelector('#project-steps-container div').appendChild(_faq_div);
+                            
+                            ViewManager.displayMandayProgressCircle();
+                            
+                            $j('#faq-div-container').append(_faq);
+                            $j('#manager-faq').popup();
+                        },
+                        
+                        displayMandayProgressCircle: function(){
+                            
+                            ViewManager.displayMandayProgressCircleByType('sales');
+                            ViewManager.displayMandayProgressCircleByType('implementation');
+                            ViewManager.displayMandayProgressCircleByType('internal');
+                            ViewManager.displayMandayProgressCircleByType('outsourcing');
+                            ViewManager.displayMandayProgressCircleByType('maintenance');
+                            
+                        },
+                        
+                        displayMandayProgressCircleByType: function(_p_type){
+                            for(var i = 0; i < sf_projects[_p_type + '_projects'].length; i++){
+                                ViewManager.displayMandayChart(_p_type, i, false);
+                            }
+                        },
+                        
+                        displayProjectStepList: function(_p_type, _p_id){
+                            ViewManager.showHeader(sf_projects[_p_type + '_projects'][_p_id].project_name, 'javascript:ProjectStepManager.invokeAction("view-projectlist");');
+                            
+                            var _p = sf_projects[_p_type + '_projects'][_p_id];
+                            
+                            var _div = document.querySelector('#project-briefing-template').text;
+                            _div = _div.replace('{{project-startdate}}', _p.project_start_date);
+                            _div = _div.replace('{{estimate-enddate}}', _p.estimated_end_date);
+                            _div = _div.replace('{{current-stage}}', _p.project_imp_step);
+                            
+                            var _project_briefing = _div;
+                            
+                            var _project_step_list = DOMManager.createProjectStepList(_p_type, _p_id);
+                            
+                            document.querySelector('#project-steps-container div').innerHTML = _project_briefing;
+                            
+                            ViewManager.displayMandayChart(_p_type, _p_id, true);
+                            
+                            document.querySelector('#project-steps-container div').appendChild(_project_step_list);
+                        },
+                        
+                        displayMandayChart: function(_p_type, _p_id, _animated){
+                            if(sf_projects[_p_type + '_projects'][_p_id].manday_rate == undefined){
+                                sf_projects[_p_type + '_projects'][_p_id].manday_rate = 0;
+                            }
+                            
+                            var progress_value = sf_projects[_p_type + '_projects'][_p_id].manday_rate / 100;
+                            var progress_color = '#5CB85C';
+                            
+                            if(progress_value < 1){
+                                progress_value = progress_value * 0.75;
+                            } else if (progress_value >= 1 && progress_value < 1.2){
+                                progress_value = 0.75 + ((progress_value - 1) * 1.25);
+                            } else {
+                                progress_value = 1;
+                            }
+                            
+                            if(progress_value >= 0.75){
+                                progress_color = '#f0ad4e';
+                            }
+                            
+                            if(progress_value == 1){
+                                progress_color = '#d9534f';
+                            }
+                            
+                            var _contract_manday = sf_projects[_p_type + '_projects'][_p_id].contract_manday;
+                            var _actual_manday = sf_projects[_p_type + '_projects'][_p_id].actual_manday;
+                            
+                            if(_contract_manday == undefined){
+                                _contract_manday = 0;
+                            }
+                            
+                            if(_actual_manday == undefined){
+                                _actual_manday = 0;
+                            }
+                            
+                            if(_contract_manday == 0 && _actual_manday > 0){
+                                progress_color = '#d9534f';
+                                progress_value = 1;
+                            }
+                            
+                            if(_animated){
+                                $j('.manday-circle').circleProgress({
+                                    value: progress_value,
+                                    animation: false,
+                                    size: 45, 
+                                    thickness: 10,
+                                    animation:{duration:1200},
+                                    startAngle: -Math.PI / 2,
+                                    fill: { color: progress_color}
+                                }).on('circle-animation-progress', function(event, progress) {
+                                    $j('#manday-circle-label').html(parseInt(_actual_manday * progress) + ' / ' + _contract_manday);
+                                });
+                            } else {
+                                $j('.' + _p_type + _p_id + 'mandaycircle').circleProgress({
+                                    value: progress_value,
+                                    animation: false,
+                                    size: 40, 
+                                    thickness: 10,
+                                    startAngle: -Math.PI / 2,
+                                    fill: { color: progress_color}
+                                });
+                            }
+                        },
+                    
+                        showAjaxLoading: function(loading_text){
+                            document.getElementById('pageone').classList.add('ui-state-disabled');
+                            var loading_image_src = "{!URLFOR($Resource.Wlink__DPResource, '/DPResource/welinklogo.png')}";
+                            $j.mobile.loading( 'show', {
+                            
+                                text: loading_text,
+                                textVisible: true,
+                                theme: 'a',
+                                textonly: false,
+                                html: '<div style="text-align:center;font-size:1em;font-weight:bold;" ><img src="' + loading_image_src + '" width="100px"/><br/><span>' + loading_text + '</span></div>'
+                            });
+                        },
+                        
+                        hideAjaxLoading: function(){
+                            $j.mobile.loading( 'hide');
+                            document.getElementById('pageone').classList.remove('ui-state-disabled');
+                        },
+                        
+                        hideStepNameErrorInfo: function(){
+                            if(document.querySelector('#project-step-name').value != ''){
+                                document.querySelector('#project-step-name').parentNode.style.background = '#f6f6f6';
+                                $j('#project-step-name-label span').remove();
+                            }
+                        },
+                        
+                        hideRemittanceAmountErrorInfo: function(){
+                            document.querySelector('#remittance-amount').style.background = 'white';
+                                $j('#remittance-amount-label span').remove();
+                            
+                            var _v = document.querySelector('#remittance-amount').value;
+                            console.log(_v);
+                            if( _v != undefined && _v != ''){
+                                document.querySelector('#remittance-amount').style.background = 'white';
+                                $j('#remittance-amount-label span').remove();
+                            }
+                            
+                            
+                        },
+                        
+                        showRemittanceInput: function(_p_type, _p_id, _step_id){
+                            
+                            var _amount = '';
+                        
+                            if(_step_id != 'new'){
+                                _amount = sf_projects[_p_type + '_projects'][_p_id].project_step_list[_step_id].remittance_amount;
+                            }
+                            
+                            var _x = document.querySelector('#is-remittance-step').checked;
+                            if(_x){
+                                
+                                var _r = document.querySelector('#step-editor-remittance-input-template').text;
+                                
+                                _r = _r.replace('{{remittance-amount}}', _amount);
+                            
+                                $j('#remittance').append(_r);
+                                $j('#remittance-amount').textinput();
+                            } else {
+                                $j('#remittance-amount-div').remove();
+                            }
+                        },
+                        
+                        showHeader: function(header_text, anchor_href){
+                            
+                            $j('#page-header-container div').remove();
+                            
+                            var header_div = document.querySelector('#page-header-template').text;
+                            header_div = header_div.replace('{{page-title}}', header_text);
+                            $j('#page-header-container').append(header_div);
+                            
+                            document.querySelector('#page-header-left-button').setAttribute('href', anchor_href);
+                            if(anchor_href == undefined){
+                                document.querySelector('#page-header-left-button').style.visibility = 'hidden';
+                            }
+                            
+                            document.title = '项目阶段管理 - {!$User.FirstName} {!$User.LastName}';
+                        }
+                    }
+                    
+                    var DOMManager = {
+                        createProjectListByType: function(_p_type, _p_ul){
+                            var _type_number = sf_projects[_p_type + '_projects'].length;
+                            
+                            if(_type_number > 0){
+                                var _type_name = DOMManager.retrieveProjectTypeName(_p_type);
+                                var _divider = DOMManager.createProjectListItemDivider(_type_name, _type_number + '');
+                                _p_ul.appendChild(_divider);
+                            }
+                            
+                            for(var i = 0; i < _type_number; i++){
+                                var _li = DOMManager.createProjectListItem(_p_type, i, sf_projects[_p_type + '_projects'][i]);
+                                _p_ul.appendChild(_li);
+                            }
+                            
+                            return _p_ul;
+                        },
+                        
+                        retrieveProjectTypeName: function(js_var_name){
+                            var _type_name;
+                            
+                            switch (js_var_name) {
+                                case 'sales':
+                                    _type_name = '销售项目';
+                                    break;
+                                case 'implementation':
+                                    _type_name = '实施项目';
+                                    break;
+                                case 'maintenance':
+                                    _type_name = '维护项目';
+                                    break;
+                                case 'internal':
+                                    _type_name = '内部项目';
+                                    break;
+                                case 'outsourcing':
+                                    _type_name = '外包项目';
+                                    break;
+                                default:
+                                    console.log(js_var_name);
+                            }
+                            
+                            return _type_name;
+                        },
+                        
+                        createProjectListItemDivider: function(_p_type, _p_number){
+                            var _li = document.createElement('li');
+                            _li.setAttribute('data-role', 'list-divider');
+                            _li.setAttribute('role', 'heading');
+                            _li.classList.add('ui-li-divider');
+                            _li.classList.add('ui-bar-inherit');
+                            _li.classList.add('ui-li-has-count');
+                            _li.style.backgroundColor = 'white';
+                            _li.style.fontSize = '1em';
+                            
+                            var _project_type = document.createTextNode(_p_type);
+                            
+                            var _count = document.createElement('span');
+                            _count.classList.add('ui-li-count');
+                            _count.classList.add('ui-body-inherit');
+                            _count.style.backgroundColor = '#8AC645';
+                            _count.style.borderColor = '#8AC645';
+                            _count.style.color = 'white';
+                            _count.style.textShadow = 'none';
+                            
+                            var _count_number = document.createTextNode(_p_number);
+                            _count.appendChild(_count_number);
+                            
+                            _li.appendChild(_project_type);
+                            _li.appendChild(_count);
+                            
+                            return _li;
+                        },
+                        
+                        createProjectListItem: function(_p_type, _p_id, _sf_project){
+                            var _li = document.createElement('li');
+                            _li.setAttribute('data-icon','false');
+                            
+                            var _a = document.createElement('a');
+                            _a.href = 'javascript:ProjectStepManager.invokeAction("view-steplist", \'' + _p_type + '\',\'' + _p_id + '\');';
+                            _a.classList.add('ui-btn');
+                            
+                            var _h2 = document.createElement('h2');
+                            var _h2_text = document.createTextNode(_sf_project.project_name);
+                            _h2.appendChild(_h2_text);
+                            
+                            var _p1 = document.createElement('p');
+                            _p1.style.fontSize = '1em';
+                            _p1_text = document.createTextNode('合同人天：' + _sf_project.contract_manday);
+                            _p1.appendChild(_p1_text);
+                            
+                            var _p2 = document.createElement('p');
+                            _p2.style.fontSize = '1em';
+                            _p2_text = document.createTextNode('实际人天：' + _sf_project.actual_manday);
+                            _p2.appendChild(_p2_text);
+                            
+                            var _p_aside = document.createElement('div');
+                            _p_aside.style.fontSize = '1em';
+                            _p_aside.style.marginRight = '-50px';
+                            _p_aside.style.marginTop = '25px';
+                            _p_aside.classList.add('ui-li-aside');
+                            _p_aside.style.textAlign = 'center';
+                            _p_aside.style.width = '100px';
+                            
+                            var _manday = document.createElement('div');
+                            _manday.classList.add(_p_type + _p_id + 'mandaycircle');
+                            
+                            _p_aside_text = document.createTextNode(_sf_project.project_imp_step);
+                            
+                            _p_aside.appendChild(_manday);
+                            _p_aside.appendChild(_p_aside_text);
+                            
+                            _a.appendChild(_h2);
+                            _a.appendChild(_p1);
+                            _a.appendChild(_p2);
+                            _a.appendChild(_p_aside);
+                            
+                            _li.appendChild(_a);
+                            
+                            return _li;
+                        },
+                        
+                        createUnorderedList: function(){
+                            var _ul = document.createElement('ul');
+                            _ul.setAttribute('data-inset', 'true');
+                            _ul.setAttribute('data-role', 'listview');
+                            _ul.classList.add('ui-listview');
+                            _ul.classList.add('ui-listview-inset');
+                            _ul.classList.add('ui-corner-all');
+                            _ul.classList.add('ui-shadow');
+                            
+                            return _ul;
+                        },
+                        
+                        createProjectStepList: function(_p_type, _p_id){
+                            var _div = document.createElement('div');
+                            
+                            var _ul = DOMManager.createProjectStepListUL();
+                            
+                            var _li = document.createElement('li');
+                            _li.setAttribute('data-role', 'list-divider');
+                            _li.setAttribute('role', 'heading');
+                            _li.classList.add('ui-li-divider');
+                            _li.classList.add('ui-bar-inherit');
+                            _li.classList.add('ui-first-child');
+                            _li.style.fontSize = '1em';
+                            _li.style.backgroundColor = 'white';
+                            _li.style.borderBottomColor = '#8AC645';
+                            _li.style.borderBottomWidth = '2px';
+                            
+                            var _title_text = document.createTextNode('阶段列表');
+                            _li.appendChild(_title_text);
+                            
+                            _ul.appendChild(_li)
+                            
+                            for(var i = 0; i < sf_projects[_p_type + '_projects'][_p_id].project_step_list.length; i++){
+                                var _li = DOMManager.createProjectStepListItem(_p_type, _p_id, i);
+                                _ul.appendChild(_li);
+                            }
+                            
+                            if(_ul.children.length > 1){
+                                // _ul.children[0].classList.add('ui-first-child');
+                                _ul.children[_ul.children.length - 1].classList.add('ui-last-child');
+                                _div.appendChild(_ul);
+                            } else {
+                                /*
+                                var _no_step = document.createElement('div');
+                                _no_step.style.textAlign = 'center';
+                                _no_step.style.margin = '50px 0';
+                                _no_step.style.color = '#bbb';
+                                
+                                var _no_step_text = document.createTextNode('～还没添加项目阶段～');
+                                _no_step.appendChild(_no_step_text);
+                                */
+                                
+                                var _no_step = document.querySelector('#project-step-list-no-content-template').text;
+                                
+                                _div.innerHTML = _no_step;
+                                //_ul = _no_step;
+                            }
+                            
+                            var _btn_div = document.createElement('div');
+                            _btn_div.classList.add('control-buttons');
+                            _btn_div.style.textAlign = 'center';
+                            _btn_div.marginTop = '12px';
+                            
+                            var _btn = DOMManager.createAnchorButton("javascript:ProjectStepManager.invokeAction('edit-step', '" + _p_type + "', '" + _p_id + "','new');", "添加项目阶段");
+                            var _btn2 = DOMManager.createAnchorButton("javascript:ProjectStepManager.invokeAction('view-projectlist');", "返回项目列表");
+                            _btn_div.appendChild(_btn);
+                            _btn_div.appendChild(_btn2);
+                            
+                            //_div.appendChild(_ul);
+                            _div.appendChild(_btn_div);
+                            
+                            return _div;
+                        },
+                        
+                        createProjectStepListUL: function(){
+                            var _ul = document.createElement('ul');
+                            _ul.setAttribute('data-inset','true');
+                            _ul.setAttribute('data-role','listview');
+                            _ul.classList.add('ui-listview');
+                            _ul.classList.add('ui-listview-inset');
+                            _ul.classList.add('ui-corner-all');
+                            _ul.classList.add('ui-shadow');
+                            
+                            return _ul;
+                        },
+                        
+                        createProjectStepListItem: function(_p_type, _p_id, _step_id){
+                            var _li = document.createElement('li');
+                            
+                            var _a = document.createElement('a');
+                            _a.href = "javascript:ProjectStepManager.invokeAction('edit-step', '" + _p_type + "', '" + _p_id + "','" + _step_id + "');";
+                            
+                            _a.classList.add('ui-btn');
+                            //_a.classList.add('ui-btn-icon-right');
+                            //_a.classList.add('ui-icon-carat-r');
+                            
+                            var _a_text = document.createTextNode(sf_projects[_p_type + '_projects'][_p_id].project_step_list[_step_id].project_step_name);
+                            var _a_start = document.createTextNode(sf_projects[_p_type + '_projects'][_p_id].project_step_list[_step_id].due_start_date);
+                            var _a_end = document.createTextNode(sf_projects[_p_type + '_projects'][_p_id].project_step_list[_step_id].due_end_date);
+                            _a.appendChild(_a_text);
+                            var _br1 = document.createElement('br');
+                            _a.appendChild(_br1);
+                            _a.appendChild(_a_start);
+                            //_a_start.style.fontSize='10px';
+                            
+                            var _br2 = document.createElement('br');
+                            _a.appendChild(_br2);
+                            _a.appendChild(_a_end);
+                            //_a_end.style.fontSize='10px';
+                            
+                            if(sf_projects[_p_type + '_projects'][_p_id].project_step_list[_step_id].is_remittance_step){
+                                var _dollar_icon_span = document.createElement('span');
+                                _dollar_icon_span.classList.add('ui-li-count');
+                                _dollar_icon_span.style.borderWidth = 0;
+                                
+                                var _dollar_icon_img = document.createElement('img');
+                                _dollar_icon_img.src = '{!URLFOR($Resource.dollarsign)}';
+                                _dollar_icon_img.style.width = '21px';
+                                
+                                _dollar_icon_span.appendChild(_dollar_icon_img);
+                                _a.appendChild(_dollar_icon_span);
+                            }
+                            
+                            _li.appendChild(_a);
+                            
+                            return _li;
+                        },
+                        
+                        createAnchorButton: function(_href, _text){
+                            var _a = document.createElement('a');
+                            _a.classList.add('ui-link');
+                            _a.classList.add('ui-btn');
+                            _a.classList.add('ui-btn-inline');
+                            _a.classList.add('ui-shadow');
+                            _a.classList.add('ui-corner-all');
+                            
+                            _a.setAttribute('data-inline','true');
+                            _a.setAttribute('data-role','button');
+                            _a.setAttribute('role','button');
+                            _a.setAttribute('href', _href);
+                            
+                            var _a_text = document.createTextNode(_text);
+                            _a.appendChild(_a_text);
+                            
+                            return _a;
+                        },
+                        retrieveProjectNameList: function(){
+                            var project_name_template = document.querySelector('#project-name').text;
+
+                            var _pn_options = project_name_template.replace('{{project-step-name-value}}','');
+                            _pn_options = _pn_options.replace('{{project-step-name-label}}','无');
+                            
+                            for(var i = 0; i < project_step_names.length; i++){
+                                var _pn_opt = project_name_template.replace('{{project-step-name-value}}',project_step_names[i]);
+                                _pn_opt = _pn_opt.replace('{{project-step-name-label}}',project_step_names[i]);
+                                _pn_options += _pn_opt;
+                            }
+                            
+                            return _pn_options;
+                        }
+                    }
+                    
+                    return {
+                        invokeAction: invoke,
+                        loadEventAction: ActionManager.loadEventAction,
+                        showHeader: ViewManager.showHeader,
+                        hideStepNameErrorInfo: ViewManager.hideStepNameErrorInfo,
+                        hideRemittanceAmountErrorInfo: ViewManager.hideRemittanceAmountErrorInfo,
+                        showRemittanceInput: ViewManager.showRemittanceInput
+                    }
+                })();
+                
+            </script>
+
+            <script type="text/template" id="project-name" >
+                <option value="{{project-step-name-value}}">{{project-step-name-label}}</option>
+            </script>
+            
+            <script type="text/template" id="project-briefing-template">
+            <div class="ui-shadow ui-corner-all" style="background-color: rgb(243, 243, 243);">
+                <table id="project-briefing-table" style="width: 100%; padding: 10px; border-collapse: collapse;">
+                    <tr>
+                        <td class="field-label" style="font-weight: bold; padding: 10px 0px 7.5px 20px;">项目开始：</td>
+                        <td class="field-value" style="padding: 10px 10px 7.5px 0px;">{{project-startdate}}</td>
+                        <td rowspan="3" style="font-weight: bold; text-align: center; padding-top: 5px; padding-right: 10px;">
+                            人天消耗<br/>
+                            <div class="manday-circle"></div>
+                            <div id="manday-circle-label"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="field-label" style="font-weight: bold; padding: 7.5px 0px 7.5px 20px;">预计结束：</td>
+                        <td class="field-value" style="padding: 7.5px 10px 7.5px 0px;">{{estimate-enddate}}</td>
+                    </tr>
+                    <tr>
+                        <td class="field-label" style="font-weight: bold; padding: 7.5px 0px 10px 20px;">当前阶段：</td>
+                        <td class="field-value" style="padding: 7.5px 10px 10px 0px;">{{current-stage}}</td>
+                    </tr>
+                </table>
+            </div>
+            </script>
+            
+            <script type="text/template" id="project-step-list-no-content-template">
+            <div style="text-align: center; margin: 50px 0px; color: #bbb;">
+                ～还没添加项目阶段～
+            </div>
+            </script>
+            
+            <script type="text/template" id="page-structure-template">
+                <div data-role="page" id="pageone">
+                  <div id="page-header-container">
+                  </div>
+                  <div id="project-steps-container" data-role="main" class="ui-content">
+                    <div>
+                    </div>
+                  </div>
+                </div> 
+            </script>
+            
+    </head>
+    <body>
+    </body>
+</html>
+</apex:page>

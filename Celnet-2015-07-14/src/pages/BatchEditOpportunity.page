@@ -1,0 +1,37 @@
+<apex:page controller="BatchEditOpportunity">
+<apex:form >
+<apex:pageBlock id="pageblockTwo" >
+		<apex:pageMessages />
+		<apex:pageblockbuttons >
+		<apex:commandButton action="{!MySave}" value="保存"/>
+		<apex:commandButton action="{!Mycancel}" value="取消"/>
+		</apex:pageblockbuttons>
+        <apex:pageblocktable value="{!List_Opp}" var="item">
+        <apex:column headerValue="业务机会">
+        <a href="../{!item.Id}"   target="_blank">{!item.Name}</a>
+        </apex:column>    
+        <apex:column headerValue="{!$ObjectType.Opportunity.fields.Lictype__c.label}" >
+        <apex:inputField value="{!item.Lictype__c}" />
+        </apex:column>
+        <apex:column headerValue="{!$ObjectType.Opportunity.fields.Licnumber__c.label}" >
+        <apex:inputField value="{!item.Licnumber__c}" />
+        </apex:column>
+        <apex:column headerValue="{!$ObjectType.Opportunity.fields.Boss_interview__c.label}" >
+        <apex:inputField value="{!item.Boss_interview__c}" />
+        </apex:column>
+        <apex:column headerValue="{!$ObjectType.Opportunity.fields.decisiontitle__c.label}" >
+        <apex:inputField value="{!item.decisiontitle__c}" />
+        </apex:column>
+        <apex:column headerValue="{!$ObjectType.Opportunity.fields.isquotation__c.label}" >
+        <apex:inputField value="{!item.isquotation__c}" />
+        </apex:column>
+        <apex:column headerValue="{!$ObjectType.Opportunity.fields.Interview_boss_stage__c.label}" >
+        <apex:inputField value="{!item.Interview_boss_stage__c}" />
+        </apex:column>
+        <apex:column headerValue="{!$ObjectType.Opportunity.fields.facetoface__c.label}" >
+        <apex:inputField value="{!item.facetoface__c}" />
+        </apex:column>
+        
+</apex:pageblocktable></apex:pageBlock>
+</apex:form>
+</apex:page>

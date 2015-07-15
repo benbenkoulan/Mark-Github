@@ -1,0 +1,104 @@
+<apex:page standardController="weekly_report_for_work__c" extensions="BatchAddWeekPlanControllerV2">
+<style>
+.body{border:0 auto;} 
+.apexp .bPageBlock .detailList .list table td,.apexp .bPageBlock .detailList .list table th
+    {
+    border-bottom: 0
+}
+.lblfont{ color:#4a4a56 !important;white-space: nowrap;font-size: 91%;font-weight: bold;}
+.lookupInput{vertical-align:top;}
+</style>
+<script>
+function checkAll(cb)
+{
+    var inputElem = document.getElementsByTagName("input");
+    for(var i=0; i<inputElem.length; i++)
+    {
+        if(inputElem[i].id.indexOf("selectOpt")!=-1)
+        inputElem[i].checked = cb.checked;
+    }
+}
+</script>
+
+<apex:form id="f" >
+<apex:pageBlock title="周计划"  id="ert">
+<apex:pageMessages id="pageMessage"/>
+<table border="0" class="detailList" style="width:90% !important;">
+    <tr>
+        <td class="lblfont">所属周</td>
+        <td>
+            <apex:selectList value="{!strname}" size="1" >
+                <apex:selectOptions value="{!weekstr}" />
+                <apex:actionSupport event="onchange" action="{!init}" rerender="ert" status="Statuslist"/>
+            </apex:selectList>
+            <apex:actionStatus id="Statuslist">
+	            <apex:facet name="start">
+	            	<apex:image id="messageIconlist" value="{!URLFOR($Resource.AjaxAnimation)}" />
+	            </apex:facet>
+	            <apex:facet name="stop">
+	            </apex:facet>
+            </apex:actionStatus>
+        </td>
+        
+    </tr>
+    <tr>
+        <td class="lblfont">所有人</td>
+        <td><apex:inputField value="{!wrfw.OwnerId}" /></td>
+        
+    </tr>
+    <tr>
+        <td class="lblfont">工作心得</td>
+        <td><apex:inputField value="{!wrfw.plan_do_standards__c}" style="width:982px;height:80px;"/></td>
+        
+    </tr>
+    <tr>
+        <td class="lblfont">遇到的障碍</td>
+        <td><apex:inputField value="{!wrfw.issues__c}" style="width:982px;height:80px;"/></td>
+    </tr>
+</table>
+<apex:pageBlockTable value="{!listWeeklyTarget}" var="lwt" >
+    <apex:column Style="width:1%">
+        <apex:facet name="header" >
+             <input type="checkbox"  id="chkall" onclick="checkAll(this)" />
+        </apex:facet>
+        <apex:inputCheckbox value="{!lwt.IsDelete}" id="selectOpt"/> 
+    </apex:column>
+    <apex:column headerValue="目标主题" style="width:1%">
+        <apex:inputField value="{!lwt.wtt.Name}" style="width: 200px;"/>
+    </apex:column>
+    <apex:column headerValue="完成率" style="width:1%">
+        <apex:inputField value="{!lwt.wtt.Goalachievement__c}" style="width: 30px;"/>
+    </apex:column>
+    <apex:column headerValue="截止时间" style="width:1%" id="test">
+        <apex:inputField value="{!lwt.wtt.Enddate__c}" />
+    </apex:column>
+    <apex:column headerValue="状态" style="width:1%">
+        <apex:inputField value="{!lwt.wtt.Status__c}" />
+    </apex:column>
+    <apex:column headerValue="描述" style="width:40%">
+        <apex:inputField value="{!lwt.wtt.Description__c}" style="width: 528px;height:16px;" />
+    </apex:column>
+</apex:pageBlockTable>
+<table align="center">
+    <tr>
+        <td>
+            <apex:commandButton value="添加" action="{!AddWeeklyTarget}" reRender="ert" status="StatusAdd"/>
+            <apex:actionStatus id="StatusAdd">
+	            <apex:facet name="start">
+	            	<apex:image id="messageIconadd" value="{!URLFOR($Resource.AjaxAnimation)}" />
+	            </apex:facet>
+	            <apex:facet name="stop">
+	            </apex:facet>
+            </apex:actionStatus>
+        </td>
+        <td>
+            <apex:commandButton value="删除" action="{!DeleteWeeklyTarget}" reRender="ert" />
+        </td>
+        <td>
+            <apex:commandButton value="保存" action="{!Save}"/> 
+        </td>
+    </tr>
+</table>
+</apex:pageBlock>
+</apex:form>
+</apex:page>

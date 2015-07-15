@@ -1,0 +1,250 @@
+<apex:page docType="html-5.0" showHeader="false" applyBodyTag="false" id="page" controller="CW_FillInProjectManDayController" standardStylesheets="false">
+/*
+* author:mervin
+* date:2015-4-27
+* pre-version:CW_FillInProjectManDay
+* add-function:comment
+*/
+    <head>
+        <title>填写项目人天-{!UserName}</title>
+        <!-- Baidu统计代码开始 -->
+        <script>
+            var _hmt = _hmt || [];
+            (function() {
+              var hm = document.createElement("script");
+              hm.src = "//hm.baidu.com/hm.js?8556eb3708f6a51cff7aeb374f5414c2";
+              var s = document.getElementsByTagName("script")[0]; 
+              s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+        <!-- Baidu统计代码结束 -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/> 
+        <meta http-equiv='cache-control' content='no-cache' />
+        <meta http-equiv='expires' content='0' />
+        <meta http-equiv='pragma' content='no-cache' />
+        <meta content="telephone=no" name="format-detection" />
+        
+        <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    
+        <script>
+            $j = jQuery.noConflict();
+            
+            $j( document ).on( "mobileinit", function() {
+                $j.mobile.autoInitializePage = false;
+            });
+        </script>
+        
+        <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/jquery.mobile.icons.min.css')}" />
+        <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/celnet.min.css')}" />
+        <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+        <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+        
+        <script type="text/javascript">
+            $j = jQuery.noConflict();
+            
+            var jqm_theme = 'b';
+            $j(document).ready(function(){
+                $j.mobile.initializePage();
+                $j('#manday-page').page({theme:jqm_theme});
+                
+                console.log($j('#tabs'));
+                $j( "#tabs" ).tabs("option", "active", 2);
+                $j( "#tabs" ).tabs("option", "show", {duration: 300});
+                
+                document.getElementById('thisweek-tab').classList.add('ui-btn-active');
+                initiateStyles();
+                
+                if('{!hasLastLastWeekMW}' == 'false'){
+                    displayReminders('lastlastweek');
+                }
+                
+                if('{!hasLastWeekMW}' == 'false'){
+                    displayReminders('lastweek');
+                }
+                
+                if('{!hasThisWeekMW}' == 'false'){
+                    displayReminders('thisweek');
+                }
+               var lab=document.getElementsByTagName("label"); 
+               var des=document.getElementsByTagName("textarea");
+               for (var i=0;i<lab.length;i++){
+                   if (lab[i].innerHTML=="内部管理-其他"){
+                       des[i].style.visibility ="visible"; 
+                       des[i].innerHTML=des[i].value;
+                   }
+                   else{
+                       des[i].style.display="none";
+                   }
+               }  
+                          
+            }); 
+            
+            function displayReminders(week_id){
+                var _div = document.createElement('div');
+                _div.style.marginTop = '10px';
+                _div.style.marginBottom = '10px';
+                
+                var _div_div = document.createElement('div');
+                _div_div.style.margin = '10px';
+                
+                var _div_div_text = document.createTextNode('{!reminder}');
+                _div_div.appendChild(_div_div_text);
+                
+                var _div_img = document.createElement('img');
+                _div_img.src = '{!reminderUrl}';
+                _div_img.setAttribute('width', '100%');
+                
+                _div.appendChild(_div_div);
+                _div.appendChild(_div_img);
+                
+                document.querySelector('#' + week_id + ' .content-container').appendChild(_div);
+                document.querySelector('#' + week_id + ' .control-buttons a').classList.add('ui-state-disabled');
+            }
+            
+            function initiateStyles(){
+                document.getElementById('tabs').style.paddingLeft = '0px';
+                document.getElementById('tabs').style.paddingRight = '0px';
+                
+                var week_tabs = document.getElementsByClassName( 'week-tab' );
+                for( var i = 0; i < week_tabs.length; i++ ) {
+                    week_tabs[i].style.fontSize = '1em';
+                }
+                
+                var week_descriptions = document.getElementsByClassName( 'week-description' );
+                for( var i = 0; i < week_descriptions.length; i++ ){
+                    week_descriptions[i].style.textAlign = 'center';
+                    week_descriptions[i].style.paddingBottom = '12px';
+                }
+                
+                var content_containers = document.getElementsByClassName( 'content-container' );
+                for( var i = 0; i < content_containers.length; i++){
+                    content_containers[i].style.borderBottom = 'rgba(0,0,0,0.15) 1px solid';
+                    content_containers[i].style.borderTop = 'rgba(0,0,0,0.15) 1px solid';
+                }
+                
+                var manday_containers = document.getElementsByClassName( 'manday-container' );
+                for( var i = 0; i < manday_containers.length; i++){
+                    manday_containers[i].style.margin = '10px';
+                }
+                
+                var control_buttons = document.getElementsByClassName( 'control-buttons' );
+                for( var i = 0; i < control_buttons.length; i++ ) {
+                    control_buttons[i].style.textAlign = 'center';
+                    control_buttons[i].style.margin = '10px';
+                }
+                
+            }
+
+           
+            function saveManDay(week_id){
+                _hmt.push(['_trackEvent', '人天', '保存我的人天']);//百度统计事件跟踪代码
+                document.getElementById('tabs').classList.add('ui-state-disabled');
+                            
+                $j.mobile.loading( 'show', {
+                    text: '保存中',
+                    textVisible: true,
+                    theme: 'a',
+                    textonly: false,
+                    html: '<div style="text-align:center;font-size:1em;font-weight:bold;" ><img src="{!$Resource.CelnetLogo}" width="100px"/><br/><span>保存中</span></div>'
+                });
+                
+                document.getElementById('page:manday:selected-weekid').value = week_id;
+                
+                saveMD();
+                document.getElementById( week_id + '-tab').classList.add('ui-btn-active');
+            }
+            
+            function hideAjaxWaiting(){
+                $j.mobile.loading( 'hide' );
+                
+                $j.mobile.loading( 'show', {
+                    text: '保存',
+                    textVisible: true,
+                    theme: 'a',
+                    textonly: false,
+                    html: '<div style="text-align:center;font-size:1em;font-weight:bold;" ><img src="{!$Resource.CelnetLogo}" width="100px"/><br/><span>保存成功</span></div>'
+                });
+                setTimeout(function(){
+                    $j.mobile.loading('hide');
+                    document.getElementById('tabs').classList.remove('ui-state-disabled');
+                },2000);
+            }
+            
+            
+        </script>
+    </head>
+    <body>
+        <div data-role="page" id="manday-page">
+        <apex:form id="manday" >
+        <apex:inputHidden id="selected-weekid" immediate="true" value="{!selectedWeek}"/>
+        <apex:actionFunction action="{!saveManDay}" reRender="selected-weekid" name="saveMD" oncomplete="hideAjaxWaiting()"/>
+        
+        <div data-role="tabs" id="tabs">
+          <div data-role="navbar">
+            <ul>
+              <li ><a id="lastlastweek-tab" href="#lastlastweek" data-ajax="false" class="week-tab" >上上周</a></li>
+              <li ><a id="lastweek-tab" href="#lastweek" data-ajax="false" class="week-tab" >上周</a></li>
+              <li ><a id="thisweek-tab" href="#thisweek" data-ajax="false" class="week-tab" >本周</a></li>
+            </ul>
+          </div>
+          
+          <div id="lastlastweek" class="ui-body-d ui-content">
+              <div class="week-description">
+                  <span>{!last_lastStandardWeek}</span>
+              </div>
+              <div class="content-container" >
+                  <apex:repeat value="{!last_lastWeekMW}" var="llmw">
+                      <div class="ui-field-contain manday-container" >
+                          <label>{!llmw.projectName}</label>
+                          <apex:input type="range" value="{!llmw.days}" html-min="0" html-max="5" html-step="0.5" html-data-highlight="true"/>
+                          <apex:inputTextarea value="{!llmw.description}"/>
+                          <!--<textarea>{!llmw.description}</textarea>-->
+                      </div>
+                  </apex:repeat>
+              </div>
+              <div class="control-buttons" >
+                  <a id="SaveLastLastWeekManDay" href="javascript:saveManDay('lastlastweek');" data-role="button" data-inline="true" class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all">保存</a>
+              </div>
+          </div>
+          <div id="lastweek" class="ui-body-d ui-content">
+              <div class="week-description">
+                  <span>{!lastStandardWeek}</span>
+              </div>
+              <div class="content-container" >
+                  <apex:repeat value="{!lastWeekMW}" var="lmw">
+                      <div class="ui-field-contain manday-container" >
+                          <label>{!lmw.projectName}</label>
+                          <apex:input type="range" value="{!lmw.days}" html-min="0.0" html-max="5.0" html-step="0.5" html-data-highlight="true"/>
+                          <apex:inputTextarea value="{!lmw.description}"/>
+                          <!--<textarea>{!lmw.description}</textarea>-->
+                      </div>
+                  </apex:repeat>
+              </div>
+              <div class="control-buttons">
+                  <a id="SaveLastWeekManDay" href="javascript:saveManDay('lastweek');" data-role="button" data-inline="true" class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all">保存</a>
+              </div>
+          </div>
+          <div id="thisweek" class="ui-body-d ui-content">
+              <div  class="week-description">
+                  <span>{!standardWeek}</span>
+              </div>
+              <div class="content-container" >
+                  <apex:repeat value="{!thisWeekMW}" var="tmw">
+                      <div class="ui-field-contain manday-container" >
+                          <label>{!tmw.projectName}</label>
+                          <apex:input type="range" value="{!tmw.days}" html-min="0" html-max="5" html-step="0.5" html-data-highlight="true"/>
+                          
+                          <apex:inputTextarea value="{!tmw.description}"/>
+                          <!--<textarea>{!tmw.description}</textarea>-->
+                      </div>
+                  </apex:repeat>
+              </div>
+              <div class="control-buttons" >
+                  <a id="SaveThisWeekManDay" href="javascript:saveManDay('thisweek');" data-role="button" data-inline="true" class="ui-link ui-btn ui-btn-inline ui-shadow ui-corner-all">保存</a>
+              </div>
+          </div>
+        </div>
+        </apex:form>
+        </div>
+    </body>
+</apex:page>

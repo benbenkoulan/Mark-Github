@@ -1,0 +1,117 @@
+<apex:page StandardController="SFDC_Projects__c" extensions="BatchAddTeamMemberController">
+ <apex:pageBlock title="为{!projectInfo.name}添加项目团队成员">
+   <apex:messages rendered="!{!isLocked}"/>
+     <apex:pageBlockSection title="项目信息" showHeader="false" columns="2" >
+         <apex:outputField label="项目名称 ：" value="{!projectInfo.name}" />
+         <apex:outputField label="客户 ：" value="{!projectInfo.Account__c}" />
+         <apex:outputField label=" 状态 ：" value="{!projectInfo.State__c}" />
+         <apex:outputField label="项目类型 ：" value="{!projectInfo.Project_Type__c}"/>                        
+         <apex:outputField label="联系人 ：" value="{!projectInfo.Contact__c}"/>
+         <apex:outputField label="SFDC预测金额 ：" value="{!projectInfo.SFDCforecast__c}" />          
+      </apex:pageBlockSection>
+      <apex:form id="SearchFormId">
+           <apex:pageBlockSection title="高级筛选" columns="4" showHeader="true" id="searchId" rendered="{!showUserInfo}"> 
+               <apex:inputText value="{!inputName}" label="姓名 ：" disabled="{!isLocked }" />
+               <apex:inputText value="{!inputRole}" label="角色 ：" disabled="{!isLocked }" />
+               <apex:inputText value="{!inputPosition}" label="职位：" disabled="{!isLocked }" />
+               <apex:commandButton value="搜索" action="{!searchUser}"  disabled="{!isLocked }" reRender="UserInof" status="searchStatus"/>
+                <apex:actionStatus id="searchStatus">
+                   <apex:facet name="start">
+                        <apex:image id="messageIconadd" value="{!URLFOR($Resource.AjaxAnimation)}" />
+                    </apex:facet>
+                    <apex:facet name="stop">
+                    </apex:facet>
+                </apex:actionStatus>
+          </apex:pageBlockSection>
+      <apex:outputPanel title="用户信息" id="UserInof" rendered="{!showUserInfo}" style="height:200px"> 
+            
+         <apex:pageBlockTable align="Center" border="1" columns="7" width="90%" value="{!teamMemberList}" var="tml" rows="15"  >
+             <apex:column headerValue="选择" width="5%" >
+                <apex:inputCheckbox value="{!tml.isSelected}" disabled="{!isLocked }"/>
+            </apex:column>
+             <apex:column headerValue="姓名" width="10%">
+                <apex:outputField value="{!tml.member.name}"/>
+            </apex:column>
+            <apex:column headerValue="职位" width="10%">
+                <apex:outputField value="{!tml.member.Title}"/>
+            </apex:column>
+            <apex:column headerValue="角色" width="10%">
+                <apex:outputField value="{!tml.member.UserRole.name}" />
+            </apex:column>                     
+            <apex:column headerValue="电子邮件" width="10%">
+                <apex:outputField value="{!tml.member.Email }"/>
+            </apex:column>
+            <apex:column headerValue="手机号码" width="10%">
+                <apex:outputField value="{!tml.member.MobilePhone}"/>
+            </apex:column>
+             <apex:column headerValue="部门" width="10%">
+                <apex:outputField value="{!tml.member.Department}" />
+            </apex:column>
+           </apex:pageBlockTable>
+            <apex:commandButton value="取消" action="{!Cancel}" disabled="!{!isLocked}"/>
+           <apex:commandButton value="下一步" action="{!nextSetp}" disabled="{!isLocked }"  status="nextStepStatus" reRender="searchId,UserInof,processUser,formId,SearchFormId"/> 
+            <apex:actionStatus id="nextStepStatus">
+               <apex:facet name="start">
+                    <apex:image id="messageIconadd" value="{!URLFOR($Resource.AjaxAnimation)}" />
+                </apex:facet>
+                <apex:facet name="stop">
+                </apex:facet>
+            </apex:actionStatus>
+         </apex:outputPanel> 
+        </apex:form>
+        <apex:form id="formId">
+         <apex:outputPanel id="processUser" title="项目成员信息完善" rendered="{!showProcessPart}">  
+           <apex:pageBlockTable align="Center" border="1" columns="10" width="90%" value="{!teamMList}" var="tmObj">
+               <apex:column headerValue="项目成员" width="10%">        
+                   <apex:outputText value="{!tmObj.userName}"/>
+               </apex:column> 
+              <apex:column headerValue="项目角色" width="10%">    
+                <apex:selectList value="{!tmObj.itemMember.Nitemrole__c}" size="1">
+                    <apex:selectOptions value="{!nitemroleOptions}" />
+                </apex:selectList>
+               </apex:column>
+               <apex:column headerValue="成员类型" width="10%"> 
+                  <apex:selectList value="{!tmObj.itemMember.NMemberType__c}" size="1">
+                    <apex:selectOptions value="{!nMemberTypeOptions}" />
+                </apex:selectList>                         
+               </apex:column> 
+                <apex:column headerValue="客户联系人" width="10%">        
+                    <apex:inputField value="{!tmObj.itemMember.NAccountContact__c}" />
+               </apex:column>                            
+               <apex:column headerValue="进场时间" width="10%">        
+                   <apex:inputField value="{!tmObj.itemMember.NEntrytime__c}"/>
+               </apex:column>
+               <apex:column headerValue="离场时间" width="10%">        
+                   <apex:inputField value="{!tmObj.itemMember.NLeaveTime__c}"/>
+               </apex:column>              
+               <apex:column headerValue="备注说明" width="20%">        
+                   <apex:inputTextarea value="{!tmObj.itemMember.NRemarks__c}" style="width:100%"/>
+               </apex:column>         
+           </apex:pageBlockTable> <apex:commandButton value="上一步" action="{!LastSetp}" status="lastStepStatus" reRender="searchId,UserInof,processUser,formId,SearchFormId"/> 
+           <apex:actionStatus id="lastStepStatus">
+               <apex:facet name="start">
+                    <apex:image value="{!URLFOR($Resource.AjaxAnimation)}" />
+                </apex:facet>
+                <apex:facet name="stop">
+                </apex:facet>
+            </apex:actionStatus>
+           <apex:commandButton value="取消" action="{!Cancel}"  status="cancelStatus"/>
+             <apex:actionStatus id="cancelStatus">
+               <apex:facet name="start">
+                    <apex:image value="{!URLFOR($Resource.AjaxAnimation)}" />
+                </apex:facet>
+                <apex:facet name="stop">
+                </apex:facet>
+            </apex:actionStatus>
+           <apex:commandButton value="保存" action="{!saveRecord}"  disabled="！{!isLocked }" status="saveStatus"/>
+           <apex:actionStatus id="saveStatus">
+               <apex:facet name="start">
+                    <apex:image value="{!URLFOR($Resource.AjaxAnimation)}" />
+                </apex:facet>
+                <apex:facet name="stop">
+                </apex:facet>
+            </apex:actionStatus>         
+         </apex:outputPanel>  
+          </apex:form>            
+ </apex:pageBlock>
+</apex:page>

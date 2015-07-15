@@ -1,0 +1,42 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" id="page" docType="html-5.0" >
+	<head>
+		<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+		<meta charset="utf-8" />
+		<style>
+		html , body{background-color: #f6f7f9;}
+		*{width:100%;margin: 0;padding: 0;}
+		header{background-color: #45b796;height: 50px;line-height: 50px;}
+		header h1{color:#FFFFFF;font-family:"微软雅黑";font-weight: normal;font-size: 22px;}
+		.product{padding: 10px 0;width:95%;margin-top: 15px;margin-left: 5%;text-align:justify;background-size:30% 85%;background-repeat:no-repeat;background-position-y:15px;}
+		.product h1{color: #45b796;font-size: 16px;line-height: 25px;margin-bottom: 5px;}
+		.product p{width:55%;line-height: 20px;color: #969696;font-size: 13px;}
+		.product1{background-image: url({!URLFOR($Resource.Campaign,'ServiceProduct/tu-1.png')});}
+		.product1 h1{margin-left: 20%;width: 73%;}
+		.product2{background-image: url({!URLFOR($Resource.Campaign,'ServiceProduct/tu-2.png')});}
+		.product2 h1{width: 70%;}
+		.product3{background-image: url({!URLFOR($Resource.Campaign,'ServiceProduct/tu-3.png')});margin-bottom:20px;}
+		.product3 h1{margin-left: 33%;width: 60%;}
+		.left p{margin-left: 35%;width: 58%;}
+		.right{background-position-x: 100%;}
+		.right p{width:60%;}
+		</style>
+	</head>
+	<header>
+		<h1>&nbsp;&nbsp;&nbsp;服务产品</h1>
+	</header>
+	<div id="head">
+		<img src="{!URLFOR($Resource.Campaign,'ServiceProduct/banner.jpg')}" alt="Celnet" />
+	</div>
+	<article class="product product1 left">
+		<h1>Sales Cloud的强大功能，让您轻松掌握更多销售机会</h1>
+		<p>全球首屈一指的 CRM 解决方案将销售团队自动化带到新的高度。让您的团队获得等多的商机，赢得更多客户。这一切都无需安装任何软件，硬件，并且没有速度限制。</p>
+	</article>
+	<article class="product product2 right">
+		<h1>Service Cloud服务解决方案能更快、更直观、更灵活地预测客户需求，提高客户满意度</h1>
+		<p>通过将所有客户案例数据集成，整理出完整的产品问题解决方案，以便在最短的时间内解决客户遇到的问题。Service Cloud借助Salesforce1平台强大的计算与存储功能，让一切问题得到快速解决。</p>
+	</article>
+	<article class="product product3 left">
+		<h1>Marketing Cloud建立一对一的营销流程，实现市场营销自动化</h1>
+		<p>在如今这个互联的世界中，与每位客户的互动都非常重要。Marketing Cloud帮助您抓住每个商机，让您整合多个不同渠道、管理好客户交易进程。</p>
+	</article>
+</apex:page>

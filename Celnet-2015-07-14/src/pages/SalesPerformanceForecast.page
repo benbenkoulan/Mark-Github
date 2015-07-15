@@ -1,0 +1,29 @@
+<apex:page showHeader="true" sidebar="true" tabStyle="Account" controller="SalesPerformanceForecast">
+	<apex:sectionHeader title="预测"/>
+	<apex:form >
+		<apex:messages id="myMessage"/>
+		<apex:pageBlock >
+			<apex:pageBlockButtons location="top">
+				<apex:commandButton value="刷新" action="{refreshForecast}"/>
+			</apex:pageBlockButtons>
+			<apex:pageBlockSection >
+				<apex:selectList value="{!StartWeek}" label="开始周" size="1">
+					<apex:selectOptions value="{!List_WeekLisk}"/>
+				</apex:selectList>
+				<apex:selectList value="{!EndWeek}" label="结束周" size="1">
+					<apex:selectOptions value="{!List_WeekLisk}"/>
+				</apex:selectList>
+			</apex:pageBlockSection>
+			<apex:pageBlockSection >
+				<div>
+					<apex:repeat value="{!list_WeekLine}" var="w">
+						<div style="float:left">{!w.WeekLabel}</div>
+						<apex:repeat value="{!w.Lit_SalesLine}" var="s">
+							<div>{!s.Sales}</div><div>{!s.Finished.Amount}</div>
+						</apex:repeat>
+					</apex:repeat>
+				</div>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

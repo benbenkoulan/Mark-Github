@@ -1,0 +1,37 @@
+<apex:page controller="PersonProjectScheduleController">
+	<apex:form >
+		<apex:pageBlock title="新建人员项目计划" mode="inlineEdit" rendered="{!!isEdit}">
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!mySave}" value="保存"/>				
+				<apex:commandButton action="{!myCancer}" value="取消" immediate="true"/>
+			</apex:pageBlockButtons> 
+			<apex:pageBlockSection columns="2">		
+					<apex:inputField required="true" value="{!pps.developer__c}"/>	
+					<apex:inputField required="true" value="{!pps.project__c}"/>
+					<apex:inputField required="true" value="{!pps.type__c}"/>
+					<apex:pageBlockSectionItem ></apex:pageBlockSectionItem>
+					<apex:inputField required="true" value="{!pps.startDateTime__c}"/>
+					<apex:inputField required="true" value="{!pps.endDateTime__c}"/>
+					<apex:inputField required="true" value="{!pps.estimateStaffDay__c}"/>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+		
+		<apex:pageBlock title="查看人员项目计划" mode="inlineEdit" rendered="{!isEdit}">
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!myEdit}" value="编辑"/>	
+				<apex:commandButton action="{!myDelete}" value="删除"/>				
+				<apex:commandButton action="{!myCancer}" value="返回" immediate="true"/>
+			</apex:pageBlockButtons>
+			<apex:pageBlockSection columns="2">			
+					<apex:outputField value="{!pps.name}"/>
+					<apex:outputField value="{!pps.developer__c}"/>
+					<apex:outputField value="{!pps.project__c}"/>
+					<apex:outputField value="{!pps.type__c}"/>
+					<apex:outputField value="{!pps.startDateTime__c}"/>
+					<apex:outputField value="{!pps.endDateTime__c}"/>
+					<apex:outputField value="{!pps.estimateStaffDay__c}"/>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+		
+	</apex:form>
+</apex:page>

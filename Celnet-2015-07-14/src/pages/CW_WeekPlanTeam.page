@@ -1,0 +1,93 @@
+<apex:page id="p" docType="html-5.0" showHeader="false" applyBodyTag="false" standardStylesheets="false" controller="CW_WeekPlanTeamController">
+
+<html>
+<head>
+    <title>{!$User.FirstName}{!$User.LastName}的团队 </title>
+    
+    <!-- Baidu统计代码开始 -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "//hm.baidu.com/hm.js?8556eb3708f6a51cff7aeb374f5414c2";
+          var s = document.getElementsByTagName("script")[0]; 
+          s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <!-- Baidu统计代码结束 -->
+    
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta http-equiv='cache-control' content='no-cache' />
+    <meta http-equiv='expires' content='0' />
+    <meta http-equiv='pragma' content='no-cache' />
+    <meta content="telephone=no" name="format-detection" />
+    
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/jquery.mobile.icons.min.css')}" />
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/celnet.min.css')}" />
+    <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+    <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script>
+        $j = jQuery.noConflict();
+        
+        $j( document ).on( "mobileinit", function() {
+            $j.mobile.autoInitializePage = false;
+        });
+        
+    </script>
+    
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/jquery.mobile.icons.min.css')}" />
+    <link rel="stylesheet" href="{!URLFOR($Resource.jqmcelnettheme, '/themes/celnet.min.css')}" />
+    <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+    <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript">
+            $j = jQuery.noConflict();
+            
+            var jqm_theme = 'b';
+            $j(document).ready(function(){
+                $j.mobile.initializePage();
+                $j('#manday-page').page({theme:jqm_theme});
+                
+                console.log($j('#tabs'));
+                $j( "#tabs" ).tabs("option", "active", 2);
+                $j( "#tabs" ).tabs("option", "show", {duration: 300});
+               
+               }  
+                        
+             );
+             
+    </script>
+    <script>
+    function jump(id){
+        window.location.href = '/apex/CW_WeekPlanTeamViewer?Id='+id;
+    } 
+    </script>
+    <style>
+        span:hover { text-decoration:underline;}
+
+    </style>
+    
+</head>
+<body>
+       
+       <apex:form >
+                  <apex:repeat value="{!team}" var="users" >
+                      <div style="background:green;font-size:15px;border-top:0px;border-bottom:1px solid  #DDDDDD;height:65px;background:#f3f3f3;"  id="{!users.Id}"  onclick="jump(this.id)">
+                          <img src="https://ap1.salesforce.com/resource/1430390756000/mervin_somebody" style="float:left;margin:5px;border:1px solid  #DDDDDD;height:50px;width:50px;background:grey;"></img>
+                          <span style="float:left;margin-left:5px;margin-top:5px;color:#003377;">{!users.Name}</span>
+                          <img src="https://ap1.salesforce.com/resource/1430711070000/mervin_right" style="float:right;margin-top:20px;border:0px solid  #DDDDDD;height:25px;width:25px;"></img>  
+                      
+                          <br/><br/>
+                          <span style="font-size=8px">上周</span> <span style="font-size=8px;color:green;">{!lastweekmap[users.Id]}</span> 
+                          <span style="font-size=8px">本周</span> <span style="font-size=8px;color:green;">{!currentweekmap[users.Id]}</span> 
+                          <span style="font-size=8px">下周</span> <span style="font-size=8px;color:green;">{!nextweekmap[users.Id]}</span> 
+                      </div> 
+                  </apex:repeat>   
+        </apex:form>
+</body>
+</html>
+    
+    
+    
+    
+</apex:page>
